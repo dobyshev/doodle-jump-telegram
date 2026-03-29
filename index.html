@@ -8,7 +8,7 @@
     />
     <title>Doodle Jump | Telegram Mini App</title>
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="style.css" />
@@ -23,421 +23,165 @@
       }
 
       body {
-        background: radial-gradient(ellipse at top, #0a1f0a, #051005);
+        background: radial-gradient(ellipse at 30% 40%, #0d2818, #030a05);
+        min-height: 100vh;
         display: flex;
         justify-content: center;
         align-items: center;
-        min-height: 100vh;
         font-family: "Inter", system-ui, sans-serif;
-        padding: 16px;
+        padding: 12px;
       }
 
+      /* Главный контейнер — жидкое стекло */
       .game-container {
         width: 100%;
-        max-width: 480px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 16px;
-        padding: 20px;
-        background: rgba(8, 20, 12, 0.65);
-        backdrop-filter: blur(24px);
-        border-radius: 56px;
-        border: 1px solid rgba(255, 217, 102, 0.3);
+        max-width: 500px;
+        background: rgba(12, 25, 18, 0.45);
+        backdrop-filter: blur(20px);
+        border-radius: 48px;
+        border: 1px solid rgba(255, 235, 170, 0.25);
+        box-shadow:
+          0 25px 45px rgba(0, 0, 0, 0.3),
+          inset 0 1px 1px rgba(255, 255, 255, 0.08);
+        padding: 16px;
+        transition: all 0.3s ease;
       }
 
-      /* Главный экран */
-      .main-screen {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 24px;
-        width: 100%;
-      }
-
-      .main-screen.hidden {
-        display: none;
-      }
-
-      .game-title {
-        text-align: center;
-        margin-bottom: 20px;
-      }
-
-      .game-title h1 {
-        font-size: 48px;
-        font-weight: 800;
-        background: linear-gradient(135deg, #ffd966, #ffaa33);
-        -webkit-background-clip: text;
-        background-clip: text;
-        color: transparent;
-        text-shadow: 0 0 30px rgba(255, 217, 102, 0.3);
-      }
-
-      .game-title p {
-        color: #a8d4a8;
-        font-size: 14px;
-        margin-top: 8px;
-      }
-
-      .main-buttons {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-        width: 100%;
-      }
-
-      .play-btn {
-        background: linear-gradient(135deg, #ffd966, #ffaa33);
-        border: none;
-        color: #0a1f0a;
-        font-size: 24px;
-        font-weight: 800;
-        padding: 18px;
-        border-radius: 80px;
-        cursor: pointer;
-        box-shadow: 0 10px 25px rgba(255, 217, 102, 0.3);
-      }
-
-      .profile-btn {
-        background: rgba(0, 0, 0, 0.5);
-        border: 1px solid #ffd966;
-        color: #ffd966;
-        font-size: 18px;
-        font-weight: 700;
-        padding: 14px;
-        border-radius: 80px;
-        cursor: pointer;
-      }
-
-      /* Панель ПРОФИЛЬ */
-      .profile-screen,
-      .season-screen {
-        display: none;
-        flex-direction: column;
-        align-items: center;
-        gap: 20px;
-        width: 100%;
-      }
-
-      .profile-screen.active,
-      .season-screen.active {
-        display: flex;
-      }
-
-      .profile-header,
-      .season-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        width: 100%;
-        padding: 10px 0;
-      }
-
-      .profile-avatar {
-        width: 80px;
-        height: 80px;
-        background: linear-gradient(135deg, #ffd966, #ffaa33);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 40px;
-      }
-
-      .profile-level {
-        background: rgba(0, 0, 0, 0.5);
+      /* Верхняя панель */
+      .glass-panel {
+        background: rgba(8, 20, 12, 0.5);
+        backdrop-filter: blur(16px);
+        border-radius: 60px;
         padding: 8px 16px;
-        border-radius: 60px;
-        text-align: center;
-      }
-
-      .level-number {
-        font-size: 28px;
-        font-weight: 800;
-        color: #ffd966;
-      }
-
-      .level-label {
-        font-size: 12px;
-        color: #a8d4a8;
-      }
-
-      .stats-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 12px;
-        width: 100%;
-      }
-
-      .stat-card {
-        background: rgba(0, 0, 0, 0.4);
-        border-radius: 24px;
-        padding: 16px;
-        text-align: center;
-      }
-
-      .stat-card-value {
-        font-size: 24px;
-        font-weight: 800;
-        color: #ffd966;
-      }
-
-      .stat-card-label {
-        font-size: 11px;
-        color: #a8d4a8;
-        margin-top: 5px;
-      }
-
-      /* Панель СЕЗОН */
-      .season-timer {
-        background: rgba(0, 0, 0, 0.5);
-        border-radius: 60px;
-        padding: 12px 20px;
-        text-align: center;
-        width: 100%;
-      }
-
-      .timer-label {
-        font-size: 11px;
-        color: #a8d4a8;
-        letter-spacing: 1px;
-      }
-
-      .timer-value {
-        font-size: 20px;
-        font-weight: 800;
-        color: #ffd966;
-        font-family: monospace;
-      }
-
-      .rank-badge {
-        background: linear-gradient(135deg, #ffd966, #ffaa33);
-        border-radius: 40px;
-        padding: 8px 20px;
-        text-align: center;
-        width: 100%;
-      }
-
-      .rank-badge span:first-child {
-        font-size: 12px;
-        color: #0a1f0a;
-      }
-
-      .rank-number {
-        font-size: 36px;
-        font-weight: 800;
-        color: #0a1f0a;
-      }
-
-      .leaderboard {
-        width: 100%;
-        background: rgba(0, 0, 0, 0.3);
-        border-radius: 32px;
-        padding: 16px;
-        max-height: 350px;
-        overflow-y: auto;
-      }
-
-      .leaderboard-title {
-        font-size: 14px;
-        font-weight: 700;
-        color: #ffd966;
-        margin-bottom: 12px;
-        padding-bottom: 8px;
-        border-bottom: 1px solid rgba(255, 217, 102, 0.3);
-      }
-
-      .leaderboard-item {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 10px 0;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-      }
-
-      .rank {
-        width: 35px;
-        font-weight: 800;
-        color: #ffd966;
-      }
-
-      .rank-1 {
-        color: #ffd700;
-      }
-      .rank-2 {
-        color: #c0c0c0;
-      }
-      .rank-3 {
-        color: #cd7f32;
-      }
-
-      .avatar-small {
-        width: 40px;
-        height: 40px;
-        background: rgba(255, 217, 102, 0.2);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 20px;
-      }
-
-      .player-name {
-        flex: 1;
-        font-weight: 600;
-        color: #d4e8d4;
-      }
-
-      .player-score {
-        font-weight: 800;
-        color: #ffd966;
-      }
-
-      .season-rewards {
-        display: flex;
-        justify-content: space-between;
-        gap: 10px;
-        width: 100%;
-        margin-top: 10px;
-      }
-
-      .reward-item {
-        flex: 1;
-        background: rgba(0, 0, 0, 0.4);
-        border-radius: 20px;
-        padding: 12px;
-        text-align: center;
-      }
-
-      .reward-icon {
-        font-size: 28px;
-      }
-
-      .reward-amount {
-        font-size: 14px;
-        font-weight: 800;
-        color: #ffd966;
-      }
-
-      /* Игровые панели */
-      .game-panels {
-        display: none;
-        flex-direction: column;
-        width: 100%;
-        gap: 16px;
-      }
-
-      .game-panels.active {
-        display: flex;
+        margin-bottom: 16px;
+        border: 1px solid rgba(255, 235, 170, 0.2);
       }
 
       .score-panel {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        width: 100%;
         gap: 8px;
-        flex-wrap: wrap;
       }
 
-      .score-box,
-      .combo-box,
-      .balance-box {
-        background: rgba(0, 0, 0, 0.55);
-        backdrop-filter: blur(12px);
-        padding: 8px 18px;
-        border-radius: 80px;
-        border: 1px solid rgba(255, 215, 0, 0.5);
+      .score-item {
+        background: rgba(0, 0, 0, 0.4);
+        border-radius: 40px;
+        padding: 6px 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex: 1;
+        justify-content: center;
       }
 
-      .score-label,
-      .combo-label,
-      .balance-label {
-        font-size: 10px;
-        font-weight: 700;
-        color: #ffd966;
-        letter-spacing: 1.8px;
-        text-transform: uppercase;
-        margin-right: 8px;
+      .score-icon {
+        font-size: 18px;
       }
 
-      #scoreValue,
-      #comboValue,
-      #balanceValue {
-        font-size: 22px;
+      .score-label {
+        font-size: 11px;
+        font-weight: 600;
+        color: #b8e4b8;
+        letter-spacing: 0.5px;
+      }
+
+      .score-value {
+        font-size: 20px;
         font-weight: 800;
-        background: linear-gradient(135deg, #fff6e0, #ffd966);
+        background: linear-gradient(135deg, #ffe6b3, #ffcc66);
         -webkit-background-clip: text;
         background-clip: text;
         color: transparent;
       }
 
-      .balance-box {
-        background: linear-gradient(
-          135deg,
-          rgba(44, 90, 42, 0.85),
-          rgba(30, 58, 26, 0.85)
-        );
-        border-color: #ffaa66;
-      }
-
-      .info-btn {
-        width: 44px;
-        height: 44px;
-        border-radius: 50%;
-        background: rgba(0, 0, 0, 0.55);
-        backdrop-filter: blur(12px);
-        border: 1px solid #ffd966;
-        color: #ffd966;
-        font-size: 22px;
-        cursor: pointer;
+      /* Игровая область — компактная */
+      .game-area {
+        position: relative;
+        display: flex;
+        justify-content: center;
+        margin-bottom: 16px;
       }
 
       #gameCanvas {
         display: block;
         background: #0f2a1a;
-        border-radius: 36px;
+        border-radius: 32px;
         width: 100%;
+        max-width: 380px;
         height: auto;
         cursor: pointer;
         touch-action: none;
-        box-shadow: 0 16px 32px rgba(0, 0, 0, 0.5);
+        box-shadow:
+          0 12px 28px rgba(0, 0, 0, 0.4),
+          inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        transition: all 0.2s ease;
       }
 
+      /* Кнопка на весь экран */
+      .fullscreen-btn {
+        position: absolute;
+        right: 8px;
+        bottom: 8px;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(255, 235, 170, 0.4);
+        border-radius: 40px;
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 18px;
+        color: #ffecb3;
+        transition: all 0.2s ease;
+      }
+
+      .fullscreen-btn:active {
+        transform: scale(0.92);
+        background: #ffd966;
+        color: #0a1f0a;
+      }
+
+      /* Переключатель режимов */
       .mode-switch {
         display: flex;
-        gap: 12px;
-        width: 100%;
-        background: rgba(0, 0, 0, 0.4);
-        padding: 6px;
-        border-radius: 80px;
+        gap: 10px;
+        background: rgba(0, 0, 0, 0.3);
+        padding: 5px;
+        border-radius: 60px;
+        margin-bottom: 16px;
       }
 
       .mode-btn {
         flex: 1;
-        padding: 12px 8px;
+        padding: 10px;
         border: none;
-        border-radius: 80px;
+        border-radius: 60px;
         background: transparent;
-        color: #ffd966;
-        font-weight: 700;
-        font-size: 14px;
+        color: #ffecb3;
+        font-weight: 600;
+        font-size: 13px;
         cursor: pointer;
+        transition: all 0.2s;
       }
 
       .mode-btn.active {
         background: linear-gradient(135deg, #ffd966, #ffaa33);
         color: #0a1f0a;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
       }
 
+      /* Турнирная панель */
       .tournament-panel {
         display: none;
-        width: 100%;
-        background: rgba(0, 0, 0, 0.35);
-        border-radius: 36px;
-        padding: 18px;
-        max-height: 420px;
+        background: rgba(0, 0, 0, 0.3);
+        backdrop-filter: blur(12px);
+        border-radius: 28px;
+        padding: 14px;
+        margin-top: 8px;
+        max-height: 300px;
         overflow-y: auto;
       }
 
@@ -449,46 +193,39 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 20px;
+        margin-bottom: 12px;
         color: #ffd966;
-        font-weight: 800;
-        background: rgba(0, 0, 0, 0.3);
-        padding: 12px 16px;
-        border-radius: 60px;
+        font-weight: 700;
+        font-size: 12px;
       }
 
       .commission-badge {
-        background: linear-gradient(
-          135deg,
-          rgba(255, 100, 100, 0.25),
-          rgba(255, 80, 80, 0.15)
-        );
-        padding: 6px 16px;
-        border-radius: 60px;
-        font-size: 11px;
-        color: #ffaa66;
+        background: rgba(255, 100, 100, 0.2);
+        padding: 4px 10px;
+        border-radius: 30px;
+        font-size: 10px;
       }
 
       .tournament-create {
         display: flex;
-        gap: 12px;
-        margin-bottom: 24px;
+        gap: 8px;
+        margin-bottom: 16px;
         flex-wrap: wrap;
       }
 
       .tournament-create input,
       .tournament-create select {
-        background: rgba(0, 0, 0, 0.65);
-        border: 1px solid rgba(255, 217, 102, 0.5);
+        background: rgba(0, 0, 0, 0.6);
+        border: 1px solid rgba(255, 215, 0, 0.4);
         color: #ffecb3;
-        padding: 14px 16px;
-        border-radius: 60px;
-        font-size: 14px;
+        padding: 8px 12px;
+        border-radius: 40px;
+        font-size: 13px;
         outline: none;
       }
 
       .tournament-create input {
-        width: 110px;
+        width: 90px;
       }
 
       .tournament-create select {
@@ -499,9 +236,10 @@
         background: linear-gradient(135deg, #ffd966, #ffaa33);
         border: none;
         color: #0a1f0a;
-        padding: 14px 26px;
-        border-radius: 60px;
-        font-weight: 800;
+        padding: 8px 16px;
+        border-radius: 40px;
+        font-weight: 700;
+        font-size: 12px;
         cursor: pointer;
       }
 
@@ -513,149 +251,126 @@
       .tournament-btn.join {
         background: linear-gradient(135deg, #2196f3, #0b5e9e);
         color: white;
-        padding: 10px 18px;
-        font-size: 13px;
+        padding: 6px 12px;
+        font-size: 11px;
       }
 
       .section-title {
         color: #ffd966;
-        font-size: 12px;
-        font-weight: 800;
-        letter-spacing: 1.5px;
-        margin: 24px 0 14px;
-        text-transform: uppercase;
+        font-size: 11px;
+        font-weight: 700;
+        margin: 16px 0 10px;
       }
 
       .tournaments-container,
       .history-container {
-        max-height: 220px;
+        max-height: 180px;
         overflow-y: auto;
-        background: rgba(0, 0, 0, 0.3);
-        border-radius: 28px;
-        padding: 12px;
+        background: rgba(0, 0, 0, 0.25);
+        border-radius: 20px;
+        padding: 8px;
       }
 
       .empty-message {
         color: #8b9a6e;
         text-align: center;
-        font-size: 13px;
-        padding: 32px;
+        font-size: 12px;
+        padding: 20px;
       }
 
       .tournament-card {
-        background: linear-gradient(
-          145deg,
-          rgba(0, 0, 0, 0.55),
-          rgba(0, 0, 0, 0.35)
-        );
-        border-radius: 24px;
-        padding: 14px;
-        margin-bottom: 12px;
+        background: rgba(0, 0, 0, 0.4);
+        border-radius: 20px;
+        padding: 10px;
+        margin-bottom: 8px;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        border-left: 5px solid #ffd966;
+        border-left: 3px solid #ffd966;
       }
 
       .tournament-stake {
-        font-size: 16px;
-        font-weight: 800;
-        background: linear-gradient(135deg, #ffd966, #ffaa33);
-        -webkit-background-clip: text;
-        background-clip: text;
-        color: transparent;
+        font-size: 14px;
+        font-weight: 700;
+        color: #ffd966;
       }
 
-      .tournament-players,
-      .tournament-prize {
-        font-size: 11px;
-        color: #b8d4b8;
-        margin-top: 4px;
-      }
-
-      .tournament-status {
+      .tournament-players {
         font-size: 10px;
-        padding: 5px 14px;
-        border-radius: 60px;
-        background: linear-gradient(135deg, #ff9800, #e65100);
-        color: white;
-        display: inline-block;
-        margin-top: 8px;
+        color: #b8d4b8;
       }
 
       .history-item {
-        background: rgba(0, 0, 0, 0.45);
-        border-radius: 20px;
-        padding: 12px 16px;
-        margin-bottom: 10px;
+        background: rgba(0, 0, 0, 0.35);
+        border-radius: 14px;
+        padding: 8px 12px;
+        margin-bottom: 6px;
         display: flex;
         justify-content: space-between;
-        font-size: 12px;
+        font-size: 11px;
         color: #d4e8d4;
       }
 
       .history-win {
         color: #4caf50;
-        font-weight: 800;
+        font-weight: 700;
       }
 
       .history-lose {
         color: #f44336;
-        font-weight: 800;
+        font-weight: 700;
       }
 
+      /* Кнопка рестарта */
       .restart-btn {
         background: linear-gradient(135deg, #ffd966, #ffaa33);
         border: none;
         color: #0a1f0a;
-        font-size: 18px;
+        font-size: 16px;
         font-weight: 800;
-        padding: 16px 36px;
-        border-radius: 80px;
+        padding: 12px;
+        border-radius: 60px;
         cursor: pointer;
         display: none;
+        margin-top: 12px;
+        width: 100%;
       }
 
+      /* Нижняя навигация */
       .bottom-nav {
         display: flex;
         gap: 8px;
-        width: 100%;
-        margin-top: 10px;
-        padding-top: 15px;
+        margin-top: 16px;
+        padding-top: 12px;
         border-top: 1px solid rgba(255, 215, 0, 0.2);
       }
 
       .nav-btn {
         flex: 1;
-        background: rgba(0, 0, 0, 0.5);
-        border: 1px solid #ffd966;
-        color: #ffd966;
-        padding: 12px 8px;
-        border-radius: 60px;
-        font-weight: 700;
-        font-size: 13px;
+        background: rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(255, 235, 170, 0.3);
+        color: #ffecb3;
+        padding: 10px 5px;
+        border-radius: 40px;
+        font-weight: 600;
+        font-size: 12px;
         cursor: pointer;
         text-align: center;
+        transition: all 0.2s;
       }
 
       .nav-btn.active {
         background: linear-gradient(135deg, #ffd966, #ffaa33);
         color: #0a1f0a;
+        border-color: transparent;
       }
 
-      .back-btn {
-        background: rgba(0, 0, 0, 0.5);
-        border: 1px solid #ffd966;
-        color: #ffd966;
-        font-size: 16px;
-        font-weight: 600;
-        padding: 12px;
-        border-radius: 80px;
-        cursor: pointer;
-        width: 100%;
-        text-align: center;
+      .nav-btn:active {
+        transform: scale(0.96);
       }
 
+      /* Модальное окно */
       .modal {
         display: none;
         position: fixed;
@@ -663,7 +378,7 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background: rgba(0, 0, 0, 0.9);
+        background: rgba(0, 0, 0, 0.85);
         backdrop-filter: blur(16px);
         z-index: 1000;
         justify-content: center;
@@ -675,228 +390,214 @@
       }
 
       .modal-content {
-        background: linear-gradient(145deg, #0e2a1a, #061a0a);
-        border-radius: 56px;
-        max-width: 500px;
-        width: 90%;
-        max-height: 80vh;
-        overflow-y: auto;
-        border: 1px solid #ffd966;
+        background: rgba(20, 35, 25, 0.9);
+        backdrop-filter: blur(20px);
+        border-radius: 48px;
+        max-width: 400px;
+        width: 85%;
+        border: 1px solid rgba(255, 217, 102, 0.3);
       }
 
       .modal-header {
         display: flex;
         justify-content: space-between;
-        align-items: center;
-        padding: 24px 28px;
-        border-bottom: 1px solid rgba(255, 217, 102, 0.3);
+        padding: 18px 22px;
+        border-bottom: 1px solid rgba(255, 217, 102, 0.2);
       }
 
       .modal-header h2 {
         color: #ffd966;
-        font-size: 26px;
-        font-weight: 800;
+        font-size: 22px;
       }
 
       .modal-close {
         background: none;
         border: none;
         color: #ffd966;
-        font-size: 36px;
+        font-size: 28px;
         cursor: pointer;
       }
 
       .modal-body {
-        padding: 28px;
+        padding: 22px;
       }
 
       .info-section {
-        margin-bottom: 28px;
+        margin-bottom: 20px;
       }
 
       .info-section h3 {
         color: #ffd966;
-        font-size: 20px;
-        margin-bottom: 14px;
-        font-weight: 800;
+        font-size: 18px;
+        margin-bottom: 10px;
       }
 
       .info-section p {
         color: #d4e8d4;
-        font-size: 15px;
-        line-height: 1.55;
-        margin-bottom: 10px;
+        font-size: 13px;
+        line-height: 1.5;
+      }
+
+      /* Анимации */
+      @keyframes fadeInScale {
+        from {
+          opacity: 0;
+          transform: scale(0.96);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      .game-panels {
+        animation: fadeInScale 0.25s ease;
+      }
+
+      /* Кастомный скролл */
+      ::-webkit-scrollbar {
+        width: 3px;
+      }
+      ::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 10px;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #ffd966;
+        border-radius: 10px;
       }
     </style>
   </head>
   <body>
     <div class="game-container">
-      <!-- Главный экран -->
-      <div id="mainScreen" class="main-screen">
-        <div class="game-title">
-          <h1>DOODLE JUMP</h1>
-          <p>Прыгай выше всех!</p>
-        </div>
-        <div class="main-buttons">
-          <button id="playGameBtn" class="play-btn">🎮 ИГРАТЬ</button>
-          <button id="profileMainBtn" class="profile-btn">👤 ПРОФИЛЬ</button>
-        </div>
-      </div>
-
-      <!-- Экран профиля -->
-      <div id="profileScreen" class="profile-screen">
-        <div class="profile-header">
-          <div class="profile-avatar">🎮</div>
-          <div class="profile-level">
-            <div class="level-number" id="profileLevel">1</div>
-            <div class="level-label">УРОВЕНЬ</div>
-          </div>
-        </div>
-        <div class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-card-value" id="profileBalance">0</div>
-            <div class="stat-card-label">💰 БАЛАНС</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-card-value" id="profileBestScore">0</div>
-            <div class="stat-card-label">🏆 РЕКОРД</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-card-value" id="profileGamesPlayed">0</div>
-            <div class="stat-card-label">🎮 ИГР</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-card-value" id="profileTournaments">0</div>
-            <div class="stat-card-label">🏆 ТУРНИРОВ</div>
-          </div>
-        </div>
-        <button id="backFromProfileBtn" class="back-btn">← НАЗАД</button>
-      </div>
-
-      <!-- Экран сезона -->
-      <div id="seasonScreen" class="season-screen">
-        <div class="season-timer">
-          <div class="timer-label">ДО КОНЦА СЕЗОНА</div>
-          <div class="timer-value" id="seasonTimer">26д 22ч 32м</div>
-        </div>
-        <div class="rank-badge">
-          <span>🏆 ВАШ РЕЙТИНГ</span>
-          <div class="rank-number" id="playerRank">#4</div>
-        </div>
-        <div class="leaderboard">
-          <div class="leaderboard-title">🏆 ТОП ИГРОКОВ</div>
-          <div id="leaderboardContainer"></div>
-        </div>
-        <div class="season-rewards">
-          <div class="reward-item">
-            <div class="reward-icon">🥇</div>
-            <div class="reward-amount">1000</div>
-          </div>
-          <div class="reward-item">
-            <div class="reward-icon">🥈</div>
-            <div class="reward-amount">500</div>
-          </div>
-          <div class="reward-item">
-            <div class="reward-icon">🥉</div>
-            <div class="reward-amount">250</div>
-          </div>
-          <div class="reward-item">
-            <div class="reward-icon">🎁</div>
-            <div class="reward-amount">100</div>
-          </div>
-        </div>
-        <button id="backFromSeasonBtn" class="back-btn">← НАЗАД</button>
-      </div>
-
-      <!-- Игровые панели -->
-      <div id="gamePanels" class="game-panels">
+      <!-- Верхняя панель (жидкое стекло) -->
+      <div class="glass-panel">
         <div class="score-panel">
-          <div class="score-box">
-            <span class="score-label">🏆 SCORE</span>
-            <span id="scoreValue">0</span>
+          <div class="score-item">
+            <span class="score-icon">🏆</span>
+            <span class="score-label">SCORE</span>
+            <span class="score-value" id="scoreValue">0</span>
           </div>
-          <div class="combo-box" id="comboBox" style="display: none">
-            <span class="combo-label">⚡ COMBO</span>
-            <span id="comboValue">x1</span>
+          <div class="score-item" id="comboBox" style="display: none">
+            <span class="score-icon">⚡</span>
+            <span class="score-label">COMBO</span>
+            <span class="score-value" id="comboValue">x1</span>
           </div>
-          <div class="balance-box">
-            <span class="balance-label">💰 BALANCE</span>
-            <span id="balanceValue">0</span>
+          <div class="score-item">
+            <span class="score-icon">💰</span>
+            <span class="score-label">BALANCE</span>
+            <span class="score-value" id="balanceValue">0</span>
           </div>
-          <button class="info-btn" id="infoBtn">ⓘ</button>
-        </div>
-
-        <canvas id="gameCanvas"></canvas>
-
-        <div class="mode-switch">
-          <button class="mode-btn active" data-mode="practice">
-            🎮 TRAINING
+          <button
+            class="info-btn"
+            id="infoBtn"
+            style="
+              background: none;
+              border: none;
+              font-size: 20px;
+              color: #ffd966;
+            "
+          >
+            ⓘ
           </button>
-          <button class="mode-btn" data-mode="tournament">🏆 TOURNAMENT</button>
         </div>
-
-        <div id="tournamentPanel" class="tournament-panel">
-          <div class="tournament-header">
-            <span>🏆 REAL MONEY TOURNAMENT</span>
-            <span class="commission-badge">⚡ 10% FEE</span>
-          </div>
-
-          <div class="tournament-create">
-            <input
-              type="number"
-              id="betAmount"
-              placeholder="Amount"
-              value="100"
-              min="10"
-              step="10"
-            />
-            <select id="groupSize">
-              <option value="2">👥 2 players</option>
-              <option value="3">👥 3 players</option>
-              <option value="4">👥 4 players</option>
-              <option value="5">👥 5 players</option>
-              <option value="6">👥 6 players</option>
-              <option value="8">👥 8 players</option>
-              <option value="10">👥 10 players</option>
-            </select>
-            <button id="createTournamentBtn" class="tournament-btn create">
-              ➕ CREATE
-            </button>
-          </div>
-
-          <div class="tournaments-list">
-            <div class="section-title">🔥 ACTIVE TOURNAMENTS</div>
-            <div id="tournamentsContainer" class="tournaments-container">
-              <div class="empty-message">✨ No active tournaments</div>
-            </div>
-          </div>
-
-          <div class="my-tournaments">
-            <div class="section-title">👥 MY TOURNAMENTS</div>
-            <div id="myTournamentsContainer" class="tournaments-container">
-              <div class="empty-message">📭 You are not participating</div>
-            </div>
-          </div>
-
-          <div class="history">
-            <div class="section-title">📜 HISTORY</div>
-            <div id="historyContainer" class="history-container">
-              <div class="empty-message">📭 No history yet</div>
-            </div>
-          </div>
-        </div>
-
-        <button id="restartButton" class="restart-btn">⟳ NEW GAME</button>
       </div>
+
+      <!-- Игровая область с кнопкой fullscreen -->
+      <div class="game-area">
+        <canvas id="gameCanvas"></canvas>
+        <button class="fullscreen-btn" id="fullscreenBtn">⤢</button>
+      </div>
+
+      <!-- Переключатель режимов -->
+      <div class="mode-switch">
+        <button class="mode-btn active" data-mode="practice">
+          🎮 TRAINING
+        </button>
+        <button class="mode-btn" data-mode="tournament">🏆 TOURNAMENT</button>
+      </div>
+
+      <!-- Турнирная панель -->
+      <div id="tournamentPanel" class="tournament-panel">
+        <div class="tournament-header">
+          <span>🏆 REAL MONEY TOURNAMENT</span>
+          <span class="commission-badge">⚡ 10% FEE</span>
+        </div>
+        <div class="tournament-create">
+          <input
+            type="number"
+            id="betAmount"
+            placeholder="Amount"
+            value="100"
+            min="10"
+            step="10"
+          />
+          <select id="groupSize">
+            <option value="2">👥 2 players</option>
+            <option value="3">👥 3 players</option>
+            <option value="4">👥 4 players</option>
+            <option value="5">👥 5 players</option>
+            <option value="6">👥 6 players</option>
+            <option value="8">👥 8 players</option>
+            <option value="10">👥 10 players</option>
+          </select>
+          <button id="createTournamentBtn" class="tournament-btn create">
+            CREATE
+          </button>
+        </div>
+        <div class="section-title">🔥 ACTIVE TOURNAMENTS</div>
+        <div id="tournamentsContainer" class="tournaments-container">
+          <div class="empty-message">✨ No active tournaments</div>
+        </div>
+        <div class="section-title">👥 MY TOURNAMENTS</div>
+        <div id="myTournamentsContainer" class="tournaments-container">
+          <div class="empty-message">📭 You are not participating</div>
+        </div>
+        <div class="section-title">📜 HISTORY</div>
+        <div id="historyContainer" class="history-container">
+          <div class="empty-message">📭 No history yet</div>
+        </div>
+      </div>
+
+      <button id="restartButton" class="restart-btn">⟳ NEW GAME</button>
 
       <!-- Нижняя навигация -->
-      <div class="bottom-nav" id="bottomNav" style="display: none">
-        <button class="nav-btn" data-nav="game">🎮 ИГРА</button>
-        <button class="nav-btn" data-nav="tournament">🏆 ТУРНИР</button>
-        <button class="nav-btn" data-nav="profile">👤 ПРОФИЛЬ</button>
-        <button class="nav-btn" data-nav="season">📅 СЕЗОН</button>
+      <div class="bottom-nav" id="bottomNav">
+        <button class="nav-btn active" data-nav="game">🎮 GAME</button>
+        <button class="nav-btn" data-nav="tournament">🏆 TOURNAMENT</button>
+        <button class="nav-btn" data-nav="profile">👤 PROFILE</button>
+        <button class="nav-btn" data-nav="season">📅 SEASON</button>
       </div>
     </div>
+
+    <!-- Экран профиля (скрыт, показывается через JS) -->
+    <div id="profileScreen" class="modal" style="display: none">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>👤 PROFILE</h2>
+          <button class="modal-close" onclick="closeProfile()">&times;</button>
+        </div>
+        <div class="modal-body" id="profileBody">
+          <!-- заполняется из JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Экран сезона (скрыт) -->
+    <div id="seasonScreen" class="modal" style="display: none">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>📅 SEASON</h2>
+          <button class="modal-close" onclick="closeSeason()">&times;</button>
+        </div>
+        <div class="modal-body" id="seasonBody">
+          <!-- заполняется из JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Главный экран (скрыт, не нужен) -->
+    <div id="mainScreen" style="display: none"></div>
 
     <div id="infoModal" class="modal">
       <div class="modal-content">
@@ -915,12 +616,19 @@
             <h3>🏆 TWO MODES</h3>
             <p><strong>🎮 TRAINING</strong> — Free play</p>
             <p><strong>🏆 TOURNAMENT</strong> — Real money bets</p>
-            <p>⚡ Platform fee: <strong>10%</strong></p>
           </div>
         </div>
       </div>
     </div>
 
     <script src="script.js"></script>
+    <script>
+      function closeProfile() {
+        document.getElementById("profileScreen").style.display = "none";
+      }
+      function closeSeason() {
+        document.getElementById("seasonScreen").style.display = "none";
+      }
+    </script>
   </body>
 </html>

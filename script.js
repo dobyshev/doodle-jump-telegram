@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("=== DOODLE JUMP — PREMIUM VERSION ===");
+  console.log("=== DOODLE JUMP — GLASS STYLE ===");
 
-  // ==================== TELEGRAM SETUP ====================
+  // Telegram
   let tg = null;
   try {
     tg = window.Telegram?.WebApp;
@@ -11,12 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   } catch (e) {}
 
-  // ==================== DOM ELEMENTS ====================
-  const mainScreen = document.getElementById("mainScreen");
-  const profileScreen = document.getElementById("profileScreen");
-  const seasonScreen = document.getElementById("seasonScreen");
-  const gamePanels = document.getElementById("gamePanels");
-  const bottomNav = document.getElementById("bottomNav");
+  // DOM
   const canvas = document.getElementById("gameCanvas");
   const ctx = canvas.getContext("2d");
   const scoreElement = document.getElementById("scoreValue");
@@ -27,9 +22,16 @@ document.addEventListener("DOMContentLoaded", () => {
   const infoBtn = document.getElementById("infoBtn");
   const modal = document.getElementById("infoModal");
   const modalClose = document.querySelector(".modal-close");
+  const fullscreenBtn = document.getElementById("fullscreenBtn");
 
-  canvas.width = 400;
-  canvas.height = 600;
+  canvas.width = 360;
+  canvas.height = 540;
+
+  // Fullscreen
+  fullscreenBtn.onclick = () => {
+    if (canvas.requestFullscreen) canvas.requestFullscreen();
+    else if (canvas.webkitRequestFullscreen) canvas.webkitRequestFullscreen();
+  };
 
   // ==================== GAME STATE ====================
   let gameMode = "practice";
@@ -42,56 +44,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let combo = 0;
   let multiplier = 1;
 
-  // ==================== СЕЗОН И РЕЙТИНГ ====================
-  let playerRank = parseInt(localStorage.getItem("playerRank")) || 42;
-  let seasonEnd = new Date();
-  seasonEnd.setDate(seasonEnd.getDate() + 26);
-  seasonEnd.setHours(22, 32, 0, 0);
-
-  function updateSeasonTimer() {
-    const now = new Date();
-    const diff = seasonEnd - now;
-    if (diff <= 0) {
-      document.getElementById("seasonTimer").textContent = "СЕЗОН ЗАВЕРШЁН";
-      return;
-    }
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((diff % 86400000) / 3600000);
-    const minutes = Math.floor((diff % 3600000) / 60000);
-    document.getElementById("seasonTimer").textContent =
-      `${days}д ${hours}ч ${minutes}м`;
-  }
-
-  // Топ игроков (демо-данные)
-  const leaderboardData = [
-    { name: "Bearr1025", score: 431, level: 24 },
-    { name: "Lx", score: 229, level: 15 },
-    { name: "Robzi here?", score: 135, level: 9 },
-    { name: "BLACK GHOST", score: 84, level: 26 },
-    { name: "Эрнест", score: 48, level: 15 },
-    { name: "XS", score: 46, level: 4 },
-    { name: "Краш", score: 46, level: 4 },
-  ];
-
-  function renderLeaderboard() {
-    const container = document.getElementById("leaderboardContainer");
-    if (!container) return;
-
-    container.innerHTML = leaderboardData
-      .map(
-        (player, idx) => `
-            <div class="leaderboard-item">
-                <div class="rank ${idx === 0 ? "rank-1" : idx === 1 ? "rank-2" : idx === 2 ? "rank-3" : ""}">#${idx + 1}</div>
-                <div class="avatar-small">${idx === 0 ? "👑" : "🎮"}</div>
-                <div class="player-name">${player.name}</div>
-                <div class="player-score">${player.score}</div>
-            </div>
-        `,
-      )
-      .join("");
-  }
-
-  // ==================== BALANCE & TOURNAMENTS ====================
+  // ==================== BALANCE ====================
   let playerBalance = 0;
   let playerId = "player_" + Math.random().toString(36).substr(2, 8);
   let currentTournament = null;
@@ -102,15 +55,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const savedBalance = localStorage.getItem(`balance_${playerId}`);
     playerBalance = savedBalance ? parseInt(savedBalance) : 100;
     updateBalance();
-
     const savedTournaments = localStorage.getItem("tournaments");
     if (savedTournaments) tournaments = JSON.parse(savedTournaments);
-
     const savedHistory = localStorage.getItem(`history_${playerId}`);
     if (savedHistory) gameHistory = JSON.parse(savedHistory);
-
     renderTournaments();
-    updateProfileStats();
   }
 
   function saveData() {
@@ -118,25 +67,11 @@ document.addEventListener("DOMContentLoaded", () => {
     localStorage.setItem("tournaments", JSON.stringify(tournaments));
     localStorage.setItem(`history_${playerId}`, JSON.stringify(gameHistory));
     updateBalance();
-    updateProfileStats();
   }
 
   function updateBalance() {
     if (balanceElement) balanceElement.textContent = playerBalance;
     if (tg && tg.MainButton) tg.MainButton.setText(`💰 ${playerBalance}`);
-  }
-
-  function updateProfileStats() {
-    document.getElementById("profileBalance").textContent = playerBalance;
-    document.getElementById("profileBestScore").textContent = bestScore;
-    document.getElementById("profileGamesPlayed").textContent = gamesPlayed;
-    document.getElementById("profileTournaments").textContent =
-      tournamentsPlayed;
-
-    // Уровень рассчитывается из лучшего счета
-    const level = Math.floor(bestScore / 100) + 1;
-    document.getElementById("profileLevel").textContent = level;
-    document.getElementById("playerRank").textContent = `#${playerRank}`;
   }
 
   function addHistory(type, amount, desc) {
@@ -147,18 +82,18 @@ document.addEventListener("DOMContentLoaded", () => {
       desc,
       date: new Date().toLocaleString(),
     });
-    if (gameHistory.length > 50) gameHistory.pop();
+    if (gameHistory.length > 30) gameHistory.pop();
     saveData();
     renderTournaments();
   }
 
   function deposit() {
-    // Функция пополнения через Telegram Stars
+    let amount = 100;
     if (tg && tg.showPopup) {
       tg.showPopup(
         {
           title: "💎 Пополнение",
-          message: "Выберите сумму (Telegram Stars)",
+          message: "Выберите сумму",
           buttons: [
             { id: "100", text: "100⭐" },
             { id: "500", text: "500⭐" },
@@ -168,7 +103,7 @@ document.addEventListener("DOMContentLoaded", () => {
         },
         (id) => {
           if (id !== "cancel") {
-            const amount = parseInt(id);
+            amount = parseInt(id);
             playerBalance += amount;
             saveData();
             addHistory("deposit", amount, `Пополнение на ${amount}⭐`);
@@ -178,7 +113,7 @@ document.addEventListener("DOMContentLoaded", () => {
         },
       );
     } else {
-      const amount = parseInt(prompt("Сумма пополнения (демо):", "100"));
+      amount = parseInt(prompt("Сумма пополнения (демо):", "100"));
       if (amount > 0) {
         playerBalance += amount;
         saveData();
@@ -228,7 +163,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return false;
     }
     playerBalance -= stake;
-    const tournament = {
+    tournaments.push({
       id: Date.now(),
       stake,
       maxPlayers,
@@ -237,9 +172,7 @@ document.addEventListener("DOMContentLoaded", () => {
       winner: null,
       prizePool: stake * maxPlayers,
       createdAt: Date.now(),
-    };
-    tournaments.push(tournament);
-    currentTournament = tournament;
+    });
     saveData();
     addHistory("create", -stake, `Создан турнир на ${stake}⭐`);
     renderTournaments();
@@ -254,7 +187,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (playerBalance < t.stake) return alert(`Не хватает ${t.stake}⭐`);
     if (t.players.some((p) => p.id === playerId))
       return alert("Вы уже участвуете");
-
     playerBalance -= t.stake;
     t.players.push({ id: playerId, score: 0, finished: false });
     currentTournament = t;
@@ -274,7 +206,6 @@ document.addEventListener("DOMContentLoaded", () => {
         saveData();
         tournamentsPlayed++;
         localStorage.setItem("tournamentsPlayed", tournamentsPlayed);
-
         if (currentTournament.players.every((p) => p.finished)) {
           const winner = currentTournament.players.reduce((max, p) =>
             p.score > max.score ? p : max,
@@ -306,12 +237,8 @@ document.addEventListener("DOMContentLoaded", () => {
       if (score > bestScore) {
         bestScore = score;
         localStorage.setItem("bestScore", bestScore);
-        // Обновляем рейтинг
-        playerRank = Math.max(1, 50 - Math.floor(bestScore / 50));
-        localStorage.setItem("playerRank", playerRank);
       }
     }
-    updateProfileStats();
     renderTournaments();
   }
 
@@ -320,29 +247,19 @@ document.addEventListener("DOMContentLoaded", () => {
     const myContainer = document.getElementById("myTournamentsContainer");
     const historyContainer = document.getElementById("historyContainer");
     if (!container) return;
-
     const active = tournaments.filter((t) => t.status === "waiting");
     container.innerHTML = active.length
       ? active
           .map(
             (t) => `
             <div class="tournament-card">
-                <div class="tournament-info">
-                    <div class="tournament-stake">💰 ${t.stake}⭐</div>
-                    <div>👥 ${t.players.length}/${t.maxPlayers}</div>
-                    <div class="tournament-prize">🏆 ${t.stake * t.maxPlayers}⭐</div>
-                </div>
-                ${
-                  !t.players.some((p) => p.id === playerId)
-                    ? `<button class="tournament-btn join" onclick="window.joinTournament(${t.id})">ВСТУПИТЬ</button>`
-                    : '<span style="color:#4caf50">✓ Участвуете</span>'
-                }
+                <div><div class="tournament-stake">💰 ${t.stake}⭐</div><div class="tournament-players">👥 ${t.players.length}/${t.maxPlayers}</div></div>
+                ${!t.players.some((p) => p.id === playerId) ? `<button class="tournament-btn join" onclick="window.joinTournament(${t.id})">JOIN</button>` : '<span style="color:#4caf50">✓</span>'}
             </div>
         `,
           )
           .join("")
       : '<div class="empty-message">✨ No active tournaments</div>';
-
     const my = tournaments.filter(
       (t) =>
         t.players.some((p) => p.id === playerId) && t.status !== "finished",
@@ -351,27 +268,17 @@ document.addEventListener("DOMContentLoaded", () => {
       ? my
           .map(
             (t) => `
-            <div class="tournament-card">
-                <div class="tournament-info">
-                    <div>💰 ${t.stake}⭐</div>
-                    <div>👥 ${t.players.length}/${t.maxPlayers}</div>
-                    <span class="tournament-status">${t.status === "waiting" ? "⏳ Ожидание" : "🎮 Игра"}</span>
-                </div>
-            </div>
+            <div class="tournament-card"><div>💰 ${t.stake}⭐</div><span>${t.status === "waiting" ? "⏳" : "🎮"}</span></div>
         `,
           )
           .join("")
       : '<div class="empty-message">📭 You are not participating</div>';
-
     historyContainer.innerHTML =
       gameHistory
-        .slice(0, 15)
+        .slice(0, 10)
         .map(
           (h) => `
-            <div class="history-item">
-                <span>${h.desc}</span>
-                <span class="${h.amount > 0 ? "history-win" : h.amount < 0 ? "history-lose" : ""}">${h.amount > 0 ? "+" : ""}${h.amount}</span>
-            </div>
+            <div class="history-item"><span>${h.desc}</span><span class="${h.amount > 0 ? "history-win" : h.amount < 0 ? "history-lose" : ""}">${h.amount > 0 ? "+" : ""}${h.amount}</span></div>
         `,
         )
         .join("") || '<div class="empty-message">📭 No history yet</div>';
@@ -381,8 +288,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let powerupTimer = 0,
     activePowerup = null;
   let debris = [],
-    particles = [],
-    isDragging = false;
+    particles = [];
   let obstacles = [],
     powerups = [];
 
@@ -399,9 +305,9 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   let platforms = [];
-  const platformWidth = 65,
-    platformHeight = 14,
-    platformGap = 78;
+  const platformWidth = 60,
+    platformHeight = 12,
+    platformGap = 80;
   const platformTypes = {
     NORMAL: "normal",
     GOLD: "gold",
@@ -421,31 +327,31 @@ document.addEventListener("DOMContentLoaded", () => {
     fireflies = [];
 
   function generateBackground() {
-    for (let i = 0; i < 12; i++)
+    for (let i = 0; i < 10; i++)
       trees.push({
         x: Math.random() * canvas.width,
         y: canvas.height - 80 + Math.random() * 100,
-        height: 60 + Math.random() * 40,
-        width: 20 + Math.random() * 15,
+        height: 50 + Math.random() * 40,
+        width: 18 + Math.random() * 12,
       });
-    for (let i = 0; i < 5; i++)
+    for (let i = 0; i < 4; i++)
       clouds.push({
         x: Math.random() * canvas.width,
-        y: 30 + Math.random() * 150,
-        size: 40 + Math.random() * 30,
+        y: 30 + Math.random() * 120,
+        size: 35 + Math.random() * 25,
         speed: 0.2 + Math.random() * 0.3,
       });
-    for (let i = 0; i < 30; i++)
+    for (let i = 0; i < 25; i++)
       stars.push({
         x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height * 0.5,
+        y: Math.random() * canvas.height * 0.4,
         size: 1 + Math.random() * 2,
         twinkle: Math.random() * Math.PI * 2,
       });
-    for (let i = 0; i < 8; i++)
+    for (let i = 0; i < 6; i++)
       fireflies.push({
         x: Math.random() * canvas.width,
-        y: canvas.height - 100 + Math.random() * 150,
+        y: canvas.height - 100 + Math.random() * 120,
         size: 3 + Math.random() * 2,
         speedX: (Math.random() - 0.5) * 0.5,
         speedY: (Math.random() - 0.5) * 0.3,
@@ -478,7 +384,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function createExplosion() {
     debris = [];
-    for (let i = 0; i < 40; i++) {
+    for (let i = 0; i < 35; i++)
       debris.push({
         x: player.x + player.width / 2,
         y: player.y + player.height / 2,
@@ -489,26 +395,19 @@ document.addEventListener("DOMContentLoaded", () => {
         life: 1,
         rotation: Math.random() * Math.PI * 2,
       });
-    }
   }
 
-  // ==================== TOUCH CONTROLS ====================
+  // TOUCH CONTROLS
   canvas.style.touchAction = "none";
-  canvas.style.userSelect = "none";
-
   let touchStartX = 0;
-
   canvas.addEventListener("touchstart", (e) => {
     e.preventDefault();
-    e.stopPropagation();
     const rect = canvas.getBoundingClientRect();
     const scaleX = canvas.width / rect.width;
     touchStartX = (e.touches[0].clientX - rect.left) * scaleX;
   });
-
   canvas.addEventListener("touchmove", (e) => {
     e.preventDefault();
-    e.stopPropagation();
     if (!gameRunning) return;
     const rect = canvas.getBoundingClientRect();
     const scaleX = canvas.width / rect.width;
@@ -518,12 +417,7 @@ document.addEventListener("DOMContentLoaded", () => {
     player.x = newX;
     touchStartX = currentX;
   });
-
-  canvas.addEventListener("touchend", (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-  });
-
+  canvas.addEventListener("touchend", (e) => e.preventDefault());
   let isDraggingMouse = false;
   canvas.addEventListener("mousedown", (e) => {
     isDraggingMouse = true;
@@ -535,7 +429,6 @@ document.addEventListener("DOMContentLoaded", () => {
       Math.min(canvas.width - player.width, mouseX - player.width / 2),
     );
   });
-
   canvas.addEventListener("mousemove", (e) => {
     if (!isDraggingMouse || !gameRunning) return;
     const rect = canvas.getBoundingClientRect();
@@ -546,10 +439,7 @@ document.addEventListener("DOMContentLoaded", () => {
       Math.min(canvas.width - player.width, mouseX - player.width / 2),
     );
   });
-
-  canvas.addEventListener("mouseup", () => {
-    isDraggingMouse = false;
-  });
+  canvas.addEventListener("mouseup", () => (isDraggingMouse = false));
 
   function init() {
     gameRunning = true;
@@ -564,7 +454,6 @@ document.addEventListener("DOMContentLoaded", () => {
     activePowerup = null;
     updateScore();
     updateCombo();
-
     player.x = canvas.width / 2 - player.width / 2;
     player.y = canvas.height - 100;
     player.velocityY = 0;
@@ -575,7 +464,6 @@ document.addEventListener("DOMContentLoaded", () => {
     coins = [];
     floatingNumbers = [];
     leaves = [];
-
     platforms.push({
       x: canvas.width / 2 - platformWidth / 2,
       y: canvas.height - 50,
@@ -585,7 +473,7 @@ document.addEventListener("DOMContentLoaded", () => {
       bounceEffect: 0,
       wobble: 0,
     });
-    for (let i = 1; i < 12; i++)
+    for (let i = 1; i < 10; i++)
       addRandomPlatform(canvas.height - 50 - i * platformGap);
     if (restartButton) restartButton.style.display = "none";
   }
@@ -599,7 +487,6 @@ document.addEventListener("DOMContentLoaded", () => {
     else if (r < 0.21) type = platformTypes.MUSHROOM;
     else if (r < 0.26) type = platformTypes.ICE;
     else if (r < 0.31) type = platformTypes.CLOUD;
-
     const platform = {
       x,
       y,
@@ -610,32 +497,31 @@ document.addEventListener("DOMContentLoaded", () => {
       wobble: 0,
     };
     platforms.push(platform);
-
-    if (Math.random() < 0.3)
+    if (Math.random() < 0.25)
       coins.push({
-        x: platform.x + platform.width / 2 - 6,
-        y: platform.y - 12,
-        width: 12,
-        height: 12,
+        x: platform.x + platform.width / 2 - 5,
+        y: platform.y - 10,
+        width: 10,
+        height: 10,
         collected: false,
         rotation: 0,
       });
     if (Math.random() < 0.12 && type !== platformTypes.GOLD)
       powerups.push({
-        x: platform.x + platform.width / 2 - 8,
-        y: platform.y - 18,
-        width: 16,
-        height: 16,
+        x: platform.x + platform.width / 2 - 7,
+        y: platform.y - 15,
+        width: 14,
+        height: 14,
         type: ["magnet", "slow", "shield"][Math.floor(Math.random() * 3)],
         collected: false,
         rotation: 0,
       });
     if (Math.random() < 0.1 && y > canvas.height * 0.3)
       obstacles.push({
-        x: platform.x + Math.random() * (platform.width - 20),
-        y: platform.y - 8,
-        width: 12,
-        height: 8,
+        x: platform.x + Math.random() * (platform.width - 16),
+        y: platform.y - 6,
+        width: 10,
+        height: 6,
         type: "spike",
       });
     if (Math.random() < 0.3)
@@ -651,28 +537,23 @@ document.addEventListener("DOMContentLoaded", () => {
       jump = player.jumpPower;
     if (activePowerup === "slow") grav = player.gravity * 0.6;
     else if (activePowerup === "magnet") {
-      for (let c of coins) {
+      for (let c of coins)
         if (!c.collected) {
-          const dx = player.x + player.width / 2 - (c.x + c.width / 2);
-          const dy = player.y + player.height / 2 - (c.y + c.height / 2);
-          const dist = Math.hypot(dx, dy);
-          if (dist < 80) {
+          const dx = player.x + player.width / 2 - (c.x + c.width / 2),
+            dy = player.y + player.height / 2 - (c.y + c.height / 2),
+            dist = Math.hypot(dx, dy);
+          if (dist < 70) {
             c.x += dx * 0.1;
             c.y += dy * 0.1;
           }
         }
-      }
     }
-
     player.velocityY += grav;
     player.y += player.velocityY;
-
     player.rotation += player.velocityX * 0.05;
     player.rotation *= 0.95;
-
     if (player.x + player.width < 0) player.x = canvas.width;
     if (player.x > canvas.width) player.x = -player.width;
-
     let onPlatform = false;
     for (let p of platforms) {
       if (
@@ -687,12 +568,12 @@ document.addEventListener("DOMContentLoaded", () => {
           power = jump * 0.85;
           addPoints(50, p.x + p.width / 2, p.y);
           addFloatingText("+50", p.x + p.width / 2, p.y, "#ffaa44");
-          addParticles(p.x + p.width / 2, p.y, "#FFD700", 8);
+          addParticles(p.x + p.width / 2, p.y, "#FFD700", 6);
           p.type = platformTypes.NORMAL;
         } else if (p.type === platformTypes.BOUNCE) {
-          power = jump * 1.7;
+          power = jump * 1.65;
           addFloatingText("BOUNCE!", p.x + p.width / 2, p.y, "#ff8844");
-          p.bounceEffect = 0.8;
+          p.bounceEffect = 0.6;
         } else if (p.type === platformTypes.MUSHROOM) {
           power = jump * 0.8;
           addPoints(20, p.x + p.width / 2, p.y);
@@ -721,16 +602,14 @@ document.addEventListener("DOMContentLoaded", () => {
             player.y,
             "#ffaa66",
           );
-        addParticles(p.x + p.width / 2, p.y, "#FFFFFF", 5);
+        addParticles(p.x + p.width / 2, p.y, "#FFFFFF", 4);
         break;
       }
     }
-
     for (let p of platforms) {
       if (p.bounceEffect > 0) p.bounceEffect -= 0.05;
       if (p.wobble > 0) p.wobble -= 0.03;
     }
-
     for (let o of obstacles) {
       if (
         player.x + player.width > o.x &&
@@ -745,7 +624,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }
     }
-
     if (!onPlatform && player.velocityY > 0) {
       combo = 0;
       multiplier = 1;
@@ -760,7 +638,6 @@ document.addEventListener("DOMContentLoaded", () => {
       player.y = 0;
       if (player.velocityY < 0) player.velocityY = 0;
     }
-
     if (powerupTimer > 0) {
       powerupTimer--;
       if (powerupTimer <= 0) activePowerup = null;
@@ -788,7 +665,7 @@ document.addEventListener("DOMContentLoaded", () => {
               ? "SLOW MOTION!"
               : "SHIELD!";
         addFloatingText(text, p.x + p.width / 2, p.y, "#88ff88");
-        addParticles(p.x + p.width / 2, p.y, "#88ff88", 12);
+        addParticles(p.x + p.width / 2, p.y, "#88ff88", 10);
       }
     }
     powerups = powerups.filter((p) => !p.collected);
@@ -807,7 +684,7 @@ document.addEventListener("DOMContentLoaded", () => {
         c.collected = true;
         addPoints(10, c.x + c.width / 2, c.y);
         addFloatingText("+10", c.x + c.width / 2, c.y, "#ffcc44");
-        addParticles(c.x + c.width / 2, c.y, "#FFD700", 6);
+        addParticles(c.x + c.width / 2, c.y, "#FFD700", 5);
       }
     }
     coins = coins.filter((c) => !c.collected);
@@ -824,7 +701,6 @@ document.addEventListener("DOMContentLoaded", () => {
     updateScore();
     addFloatingText(`+${points * multiplier}`, x, y, "#ffaa66");
   }
-
   function addFloatingText(text, x, y, color = "#ffffff") {
     floatingNumbers.push({ text, x, y, life: 1, color, vy: -2 });
   }
@@ -848,7 +724,7 @@ document.addEventListener("DOMContentLoaded", () => {
       leaves = leaves.filter((l) => l.y < canvas.height);
       obstacles = obstacles.filter((o) => o.y < canvas.height);
       powerups = powerups.filter((p) => p.y < canvas.height);
-      while (platforms.length < 12) {
+      while (platforms.length < 10) {
         const highest = Math.min(...platforms.map((p) => p.y));
         addRandomPlatform(highest - platformGap);
       }
@@ -875,7 +751,6 @@ document.addEventListener("DOMContentLoaded", () => {
     grad.addColorStop(1, "#4a784a");
     ctx.fillStyle = grad;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-
     for (let s of stars) {
       ctx.fillStyle = `rgba(255,255,200,${0.3 + Math.sin(Date.now() * 0.002 + s.twinkle) * 0.2})`;
       ctx.beginPath();
@@ -889,7 +764,7 @@ document.addEventListener("DOMContentLoaded", () => {
       ctx.fill();
     }
     for (let c of clouds) {
-      ctx.fillStyle = "rgba(255,255,245,0.7)";
+      ctx.fillStyle = "rgba(255,255,245,0.6)";
       ctx.beginPath();
       ctx.ellipse(c.x, c.y, c.size, c.size * 0.6, 0, 0, Math.PI * 2);
       ctx.ellipse(
@@ -929,14 +804,13 @@ document.addEventListener("DOMContentLoaded", () => {
       ctx.fill();
     }
     ctx.fillStyle = "#5A8A5A";
-    for (let i = 0; i < 25; i++) {
+    for (let i = 0; i < 20; i++) {
       ctx.beginPath();
-      ctx.moveTo(i * 18, canvas.height - 28);
-      ctx.lineTo(i * 18 + 10, canvas.height - 48);
-      ctx.lineTo(i * 18 - 10, canvas.height - 48);
+      ctx.moveTo(i * 20, canvas.height - 28);
+      ctx.lineTo(i * 20 + 10, canvas.height - 45);
+      ctx.lineTo(i * 20 - 10, canvas.height - 45);
       ctx.fill();
     }
-
     for (let p of platforms) {
       let color, glow;
       if (p.type === platformTypes.GOLD) {
@@ -965,9 +839,8 @@ document.addEventListener("DOMContentLoaded", () => {
       ctx.fillStyle = color;
       ctx.fillRect(p.x, p.y + off, p.width, p.height);
       ctx.fillStyle = glow;
-      ctx.fillRect(p.x + 5, p.y + off + 3, p.width - 10, 3);
+      ctx.fillRect(p.x + 4, p.y + off + 3, p.width - 8, 3);
     }
-
     for (let o of obstacles) {
       ctx.fillStyle = "#AA5544";
       ctx.beginPath();
@@ -982,11 +855,11 @@ document.addEventListener("DOMContentLoaded", () => {
       ctx.rotate(c.rotation);
       ctx.fillStyle = "#FFD700";
       ctx.beginPath();
-      ctx.ellipse(0, 0, 8, 8, 0, 0, Math.PI * 2);
+      ctx.ellipse(0, 0, 6, 6, 0, 0, Math.PI * 2);
       ctx.fill();
       ctx.fillStyle = "#FFA500";
       ctx.beginPath();
-      ctx.ellipse(0, 0, 4, 4, 0, 0, Math.PI * 2);
+      ctx.ellipse(0, 0, 3, 3, 0, 0, Math.PI * 2);
       ctx.fill();
       ctx.restore();
     }
@@ -1002,15 +875,15 @@ document.addEventListener("DOMContentLoaded", () => {
             : "#88FFAA";
       ctx.fillStyle = col;
       ctx.beginPath();
-      ctx.ellipse(0, 0, 10, 10, 0, 0, Math.PI * 2);
+      ctx.ellipse(0, 0, 8, 8, 0, 0, Math.PI * 2);
       ctx.fill();
       ctx.fillStyle = "#FFF";
-      ctx.font = "bold 12px monospace";
+      ctx.font = "bold 10px monospace";
       ctx.textAlign = "center";
       ctx.fillText(
         p.type === "magnet" ? "M" : p.type === "slow" ? "S" : "SH",
         0,
-        4,
+        3,
       );
       ctx.restore();
     }
@@ -1031,7 +904,6 @@ document.addEventListener("DOMContentLoaded", () => {
       ctx.fill();
       ctx.restore();
     }
-
     ctx.save();
     ctx.translate(player.x + player.width / 2, player.y + player.height / 2);
     ctx.rotate(player.rotation);
@@ -1047,32 +919,31 @@ document.addEventListener("DOMContentLoaded", () => {
     ctx.fill();
     ctx.fillStyle = "#FFF";
     ctx.beginPath();
-    ctx.arc(-6, -4, 4, 0, Math.PI * 2);
+    ctx.arc(-5, -3, 3, 0, Math.PI * 2);
     ctx.fill();
     ctx.beginPath();
-    ctx.arc(6, -4, 4, 0, Math.PI * 2);
+    ctx.arc(5, -3, 3, 0, Math.PI * 2);
     ctx.fill();
     ctx.fillStyle = "#000";
     ctx.beginPath();
-    ctx.arc(-6, -3, 2, 0, Math.PI * 2);
+    ctx.arc(-5, -2, 1.5, 0, Math.PI * 2);
     ctx.fill();
     ctx.beginPath();
-    ctx.arc(6, -3, 2, 0, Math.PI * 2);
+    ctx.arc(5, -2, 1.5, 0, Math.PI * 2);
     ctx.fill();
     ctx.beginPath();
-    ctx.arc(0, 2, 8, 0.1, Math.PI - 0.1);
+    ctx.arc(0, 2, 7, 0.1, Math.PI - 0.1);
     ctx.strokeStyle = "#FFF";
     ctx.lineWidth = 2;
     ctx.stroke();
     ctx.fillStyle = "#FFAAAA";
     ctx.beginPath();
-    ctx.ellipse(-9, 1, 3, 2, 0, 0, Math.PI * 2);
+    ctx.ellipse(-8, 1, 2.5, 2, 0, 0, Math.PI * 2);
     ctx.fill();
     ctx.beginPath();
-    ctx.ellipse(9, 1, 3, 2, 0, 0, Math.PI * 2);
+    ctx.ellipse(8, 1, 2.5, 2, 0, 0, Math.PI * 2);
     ctx.fill();
     ctx.restore();
-
     if (debris.length > 0) {
       for (let d of debris) {
         ctx.globalAlpha = d.life;
@@ -1093,11 +964,10 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       debris = debris.filter((d) => d.life > 0);
     }
-
     for (let fn of floatingNumbers) {
       ctx.globalAlpha = fn.life;
       ctx.fillStyle = fn.color;
-      ctx.font = `bold ${Math.floor(14 + 10 * (1 - fn.life))}px system-ui`;
+      ctx.font = `bold ${Math.floor(12 + 8 * (1 - fn.life))}px system-ui`;
       ctx.textAlign = "center";
       ctx.fillText(fn.text, fn.x, fn.y + fn.vy * (1 - fn.life));
       fn.life -= 0.02;
@@ -1105,38 +975,36 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     floatingNumbers = floatingNumbers.filter((fn) => fn.life > 0);
     ctx.globalAlpha = 1;
-
     if (activePowerup && gameRunning) {
-      ctx.font = "bold 12px monospace";
+      ctx.font = "bold 10px monospace";
       ctx.fillStyle = "#88FFAA";
       ctx.textAlign = "right";
       ctx.fillText(
         `${activePowerup.toUpperCase()} ${Math.ceil(powerupTimer / 60)}s`,
-        canvas.width - 10,
-        20,
+        canvas.width - 8,
+        15,
       );
     }
-
     if (!gameRunning && debris.length < 5) {
       ctx.fillStyle = "rgba(0,0,0,0.7)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.fillStyle = "#FFF";
-      ctx.font = "bold 32px system-ui";
+      ctx.font = "bold 26px system-ui";
       ctx.textAlign = "center";
-      ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2 - 40);
+      ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2 - 30);
       ctx.fillStyle = "#FFD966";
-      ctx.font = "24px system-ui";
+      ctx.font = "20px system-ui";
       ctx.fillText(
         `${Math.floor(score)}`,
         canvas.width / 2,
-        canvas.height / 2 + 20,
+        canvas.height / 2 + 15,
       );
       ctx.fillStyle = "#CCC";
-      ctx.font = "16px system-ui";
+      ctx.font = "13px system-ui";
       ctx.fillText(
         `BEST: ${bestScore}`,
         canvas.width / 2,
-        canvas.height / 2 + 70,
+        canvas.height / 2 + 55,
       );
     }
     ctx.textAlign = "left";
@@ -1145,94 +1013,84 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function updateScore() {
     if (scoreElement) scoreElement.textContent = Math.floor(score);
-    if (scoreElement) {
-      scoreElement.style.transform = "scale(1.1)";
-      setTimeout(() => (scoreElement.style.transform = "scale(1)"), 150);
-    }
   }
-
   function updateCombo() {
     if (multiplier > 1) {
       if (comboBox) comboBox.style.display = "flex";
       if (comboValue) comboValue.textContent = `x${multiplier}`;
-      if (comboBox) {
-        comboBox.style.animation = "none";
-        comboBox.offsetHeight;
-        comboBox.style.animation = "comboPulse 0.3s ease";
-      }
     } else {
       if (comboBox) comboBox.style.display = "none";
     }
   }
 
-  // ==================== NAVIGATION ====================
-  function showMainScreen() {
-    mainScreen.style.display = "flex";
-    profileScreen.classList.remove("active");
-    seasonScreen.classList.remove("active");
-    gamePanels.classList.remove("active");
-    bottomNav.style.display = "none";
+  // Navigation
+  function showProfile() {
+    const profileModal = document.getElementById("profileScreen");
+    document.getElementById("profileBody").innerHTML = `
+            <div style="text-align:center"><div style="font-size:48px">🎮</div>
+            <div style="font-size:24px;font-weight:800;color:#ffd966">LVL ${Math.floor(bestScore / 100) + 1}</div>
+            <div style="margin-top:20px"><div class="stat-row"><span>💰 BALANCE</span><span style="color:#ffd966">${playerBalance}⭐</span></div>
+            <div class="stat-row"><span>🏆 BEST SCORE</span><span style="color:#ffd966">${bestScore}</span></div>
+            <div class="stat-row"><span>🎮 GAMES PLAYED</span><span style="color:#ffd966">${gamesPlayed}</span></div>
+            <div class="stat-row"><span>🏆 TOURNAMENTS</span><span style="color:#ffd966">${tournamentsPlayed}</span></div></div>
+            <button onclick="closeProfile()" class="tournament-btn" style="margin-top:20px;width:100%">CLOSE</button>
+        `;
+    profileModal.style.display = "flex";
   }
 
-  function showProfileScreen() {
-    mainScreen.style.display = "none";
-    profileScreen.classList.add("active");
-    seasonScreen.classList.remove("active");
-    gamePanels.classList.remove("active");
-    bottomNav.style.display = "none";
-    updateProfileStats();
+  function showSeason() {
+    const seasonModal = document.getElementById("seasonScreen");
+    const endDate = new Date();
+    endDate.setDate(endDate.getDate() + 26);
+    endDate.setHours(22, 32, 0, 0);
+    const diff = endDate - new Date();
+    const days = Math.floor(diff / 86400000);
+    const hours = Math.floor((diff % 86400000) / 3600000);
+    const mins = Math.floor((diff % 3600000) / 60000);
+    document.getElementById("seasonBody").innerHTML = `
+            <div style="text-align:center"><div class="season-timer" style="background:rgba(0,0,0,0.3);border-radius:40px;padding:12px;margin-bottom:16px">
+                <div style="font-size:11px;color:#b8d4b8">SEASON ENDS IN</div>
+                <div style="font-size:24px;font-weight:800;color:#ffd966">${days}d ${hours}h ${mins}m</div>
+            </div>
+            <div class="rank-badge" style="background:linear-gradient(135deg,#ffd966,#ffaa33);border-radius:40px;padding:12px;margin-bottom:16px">
+                <span>🏆 YOUR RANK</span>
+                <div style="font-size:32px;font-weight:800;color:#0a1f0a">#${Math.floor(Math.random() * 50) + 1}</div>
+            </div>
+            <div class="leaderboard" style="background:rgba(0,0,0,0.25);border-radius:28px;padding:12px;max-height:250px;overflow-y:auto">
+                <div style="font-weight:700;color:#ffd966;margin-bottom:12px">TOP PLAYERS</div>
+                ${["Bearr1025", "Lx", "Robzi here?", "BLACK GHOST", "Эрнест"].map((n, i) => `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05)"><span>#${i + 1} ${n}</span><span style="color:#ffd966">${[431, 229, 135, 84, 48][i]}</span></div>`).join("")}
+            </div>
+            <button onclick="closeSeason()" class="tournament-btn" style="margin-top:20px;width:100%">CLOSE</button>
+        `;
+    seasonModal.style.display = "flex";
   }
 
-  function showSeasonScreen() {
-    mainScreen.style.display = "none";
-    profileScreen.classList.remove("active");
-    seasonScreen.classList.add("active");
-    gamePanels.classList.remove("active");
-    bottomNav.style.display = "none";
-    updateSeasonTimer();
-    renderLeaderboard();
-  }
-
-  function showGameScreen() {
-    mainScreen.style.display = "none";
-    profileScreen.classList.remove("active");
-    seasonScreen.classList.remove("active");
-    gamePanels.classList.add("active");
-    bottomNav.style.display = "flex";
-    init();
-    renderTournaments();
-  }
-
-  function switchGameTab(tab) {
-    const modeSwitch = document.querySelector(".mode-switch");
-    const tournamentPanel = document.getElementById("tournamentPanel");
-
-    if (tab === "game") {
-      modeSwitch.style.display = "flex";
-      tournamentPanel.classList.remove("active");
-      gameMode = "practice";
-      document.querySelector('.mode-btn[data-mode="practice"]').click();
-    } else if (tab === "tournament") {
-      modeSwitch.style.display = "flex";
-      tournamentPanel.classList.add("active");
-      gameMode = "tournament";
-      document.querySelector('.mode-btn[data-mode="tournament"]').click();
-    } else if (tab === "profile") {
-      showProfileScreen();
-    } else if (tab === "season") {
-      showSeasonScreen();
-    }
-  }
-
-  // ==================== BUTTONS INIT ====================
-  document.getElementById("playGameBtn").onclick = () => showGameScreen();
-  document.getElementById("profileMainBtn").onclick = () => showProfileScreen();
-  document.getElementById("backFromProfileBtn").onclick = () =>
-    showMainScreen();
-  document.getElementById("backFromSeasonBtn").onclick = () => showMainScreen();
+  window.closeProfile = () =>
+    (document.getElementById("profileScreen").style.display = "none");
+  window.closeSeason = () =>
+    (document.getElementById("seasonScreen").style.display = "none");
 
   document.querySelectorAll(".nav-btn").forEach((btn) => {
-    btn.onclick = () => switchGameTab(btn.dataset.nav);
+    btn.onclick = () => {
+      document
+        .querySelectorAll(".nav-btn")
+        .forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      const tab = btn.dataset.nav;
+      if (tab === "profile") showProfile();
+      else if (tab === "season") showSeason();
+      else if (tab === "game") {
+        document.querySelector(".mode-switch").style.display = "flex";
+        document.getElementById("tournamentPanel").classList.remove("active");
+        gameMode = "practice";
+        document.querySelector('.mode-btn[data-mode="practice"]').click();
+      } else if (tab === "tournament") {
+        document.querySelector(".mode-switch").style.display = "flex";
+        document.getElementById("tournamentPanel").classList.add("active");
+        gameMode = "tournament";
+        document.querySelector('.mode-btn[data-mode="tournament"]').click();
+      }
+    };
   });
 
   function switchMode(mode) {
@@ -1242,27 +1100,19 @@ document.addEventListener("DOMContentLoaded", () => {
       else btn.classList.remove("active");
     });
     if (mode === "practice") currentTournament = null;
-    else renderTournaments();
   }
-
-  document.querySelectorAll(".mode-btn").forEach((btn) => {
-    btn.onclick = () => switchMode(btn.dataset.mode);
-  });
+  document
+    .querySelectorAll(".mode-btn")
+    .forEach((btn) => (btn.onclick = () => switchMode(btn.dataset.mode)));
 
   const createBtn = document.getElementById("createTournamentBtn");
-  if (createBtn) {
+  if (createBtn)
     createBtn.onclick = () => {
-      const stakeInput = document.getElementById("betAmount");
-      const groupSelect = document.getElementById("groupSize");
-      const stake = stakeInput ? parseInt(stakeInput.value) : 100;
-      const maxPlayers = groupSelect ? parseInt(groupSelect.value) : 2;
-      if (stake < 10) {
-        alert("Минимальная ставка: 10⭐");
-        return;
-      }
-      createTournament(stake, maxPlayers);
+      const stake = parseInt(document.getElementById("betAmount").value);
+      const maxPlayers = parseInt(document.getElementById("groupSize").value);
+      if (stake < 10) alert("Min stake 10⭐");
+      else createTournament(stake, maxPlayers);
     };
-  }
 
   if (infoBtn && modal && modalClose) {
     infoBtn.onclick = () => modal.classList.add("active");
@@ -1271,19 +1121,19 @@ document.addEventListener("DOMContentLoaded", () => {
       if (e.target === modal) modal.classList.remove("active");
     };
   }
-
   if (restartButton) restartButton.onclick = () => init();
 
-  // ==================== START ====================
   generateBackground();
   loadData();
   init();
   renderTournaments();
   switchMode("practice");
-  setInterval(updateSeasonTimer, 60000); // Обновляем таймер каждую минуту
 
   function gameLoop() {
-    if (gameRunning && gamePanels.classList.contains("active")) {
+    if (
+      gameRunning &&
+      document.getElementById("gamePanels")?.style.display !== "none"
+    ) {
       updatePlayer();
       updateCoins();
       updatePowerups();
@@ -1293,14 +1143,11 @@ document.addEventListener("DOMContentLoaded", () => {
     requestAnimationFrame(gameLoop);
   }
   gameLoop();
-
   if (tg && tg.MainButton) {
     tg.MainButton.setText(`💰 ${playerBalance}`).show();
     tg.MainButton.onClick(() => {
       if (gameMode === "tournament") deposit();
-      else switchMode("tournament");
     });
   }
-
-  console.log("Игра запущена! Добавлены панели ПРОФИЛЬ и СЕЗОН");
+  console.log("DOODLE JUMP — GLASS STYLE READY");
 });
