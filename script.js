@@ -28,10 +28,12 @@ document.addEventListener("DOMContentLoaded", () => {
   canvas.height = 540;
 
   // Fullscreen
-  fullscreenBtn.onclick = () => {
-    if (canvas.requestFullscreen) canvas.requestFullscreen();
-    else if (canvas.webkitRequestFullscreen) canvas.webkitRequestFullscreen();
-  };
+  if (fullscreenBtn) {
+    fullscreenBtn.onclick = () => {
+      if (canvas.requestFullscreen) canvas.requestFullscreen();
+      else if (canvas.webkitRequestFullscreen) canvas.webkitRequestFullscreen();
+    };
+  }
 
   // ==================== GAME STATE ====================
   let gameMode = "practice";
@@ -71,7 +73,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function updateBalance() {
     if (balanceElement) balanceElement.textContent = playerBalance;
-    if (tg && tg.MainButton) tg.MainButton.setText(`💰 ${playerBalance}`);
   }
 
   function addHistory(type, amount, desc) {
@@ -1023,23 +1024,29 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Navigation
+  // Navigation - Profile & Season modals
   function showProfile() {
-    const profileModal = document.getElementById("profileScreen");
-    document.getElementById("profileBody").innerHTML = `
-            <div style="text-align:center"><div style="font-size:48px">🎮</div>
-            <div style="font-size:24px;font-weight:800;color:#ffd966">LVL ${Math.floor(bestScore / 100) + 1}</div>
-            <div style="margin-top:20px"><div class="stat-row"><span>💰 BALANCE</span><span style="color:#ffd966">${playerBalance}⭐</span></div>
-            <div class="stat-row"><span>🏆 BEST SCORE</span><span style="color:#ffd966">${bestScore}</span></div>
-            <div class="stat-row"><span>🎮 GAMES PLAYED</span><span style="color:#ffd966">${gamesPlayed}</span></div>
-            <div class="stat-row"><span>🏆 TOURNAMENTS</span><span style="color:#ffd966">${tournamentsPlayed}</span></div></div>
-            <button onclick="closeProfile()" class="tournament-btn" style="margin-top:20px;width:100%">CLOSE</button>
+    const level = Math.floor(bestScore / 100) + 1;
+    const modalHtml = `
+            <div class="modal-content" style="max-width:350px">
+                <div class="modal-header"><h2>👤 PROFILE</h2><button class="modal-close" onclick="closeCustomModal()">&times;</button></div>
+                <div class="modal-body" style="text-align:center">
+                    <div style="font-size:48px">🎮</div>
+                    <div style="font-size:24px;font-weight:800;color:#ffd966">LVL ${level}</div>
+                    <div style="margin-top:20px">
+                        <div class="stat-row"><span>💰 BALANCE</span><span style="color:#ffd966">${playerBalance}⭐</span></div>
+                        <div class="stat-row"><span>🏆 BEST SCORE</span><span style="color:#ffd966">${bestScore}</span></div>
+                        <div class="stat-row"><span>🎮 GAMES PLAYED</span><span style="color:#ffd966">${gamesPlayed}</span></div>
+                        <div class="stat-row"><span>🏆 TOURNAMENTS</span><span style="color:#ffd966">${tournamentsPlayed}</span></div>
+                    </div>
+                    <button onclick="closeCustomModal()" class="tournament-btn" style="margin-top:20px;width:100%">CLOSE</button>
+                </div>
+            </div>
         `;
-    profileModal.style.display = "flex";
+    showModal(modalHtml);
   }
 
   function showSeason() {
-    const seasonModal = document.getElementById("seasonScreen");
     const endDate = new Date();
     endDate.setDate(endDate.getDate() + 26);
     endDate.setHours(22, 32, 0, 0);
@@ -1047,29 +1054,44 @@ document.addEventListener("DOMContentLoaded", () => {
     const days = Math.floor(diff / 86400000);
     const hours = Math.floor((diff % 86400000) / 3600000);
     const mins = Math.floor((diff % 3600000) / 60000);
-    document.getElementById("seasonBody").innerHTML = `
-            <div style="text-align:center"><div class="season-timer" style="background:rgba(0,0,0,0.3);border-radius:40px;padding:12px;margin-bottom:16px">
-                <div style="font-size:11px;color:#b8d4b8">SEASON ENDS IN</div>
-                <div style="font-size:24px;font-weight:800;color:#ffd966">${days}d ${hours}h ${mins}m</div>
+    const modalHtml = `
+            <div class="modal-content" style="max-width:350px">
+                <div class="modal-header"><h2>📅 SEASON</h2><button class="modal-close" onclick="closeCustomModal()">&times;</button></div>
+                <div class="modal-body" style="text-align:center">
+                    <div style="background:rgba(0,0,0,0.3);border-radius:40px;padding:12px;margin-bottom:16px">
+                        <div style="font-size:11px;color:#b8d4b8">SEASON ENDS IN</div>
+                        <div style="font-size:22px;font-weight:800;color:#ffd966">${days}d ${hours}h ${mins}m</div>
+                    </div>
+                    <div class="rank-badge" style="margin-bottom:16px">
+                        <span>🏆 YOUR RANK</span>
+                        <div style="font-size:32px;font-weight:800;color:#0a1f0a">#${Math.floor(Math.random() * 50) + 1}</div>
+                    </div>
+                    <div style="background:rgba(0,0,0,0.25);border-radius:28px;padding:12px;max-height:250px;overflow-y:auto">
+                        <div style="font-weight:700;color:#ffd966;margin-bottom:12px">TOP PLAYERS</div>
+                        ${["Bearr1025", "Lx", "Robzi here?", "BLACK GHOST", "Эрнест"].map((n, i) => `<div class="leaderboard-item"><span>#${i + 1} ${n}</span><span style="color:#ffd966">${[431, 229, 135, 84, 48][i]}</span></div>`).join("")}
+                    </div>
+                    <button onclick="closeCustomModal()" class="tournament-btn" style="margin-top:20px;width:100%">CLOSE</button>
+                </div>
             </div>
-            <div class="rank-badge" style="background:linear-gradient(135deg,#ffd966,#ffaa33);border-radius:40px;padding:12px;margin-bottom:16px">
-                <span>🏆 YOUR RANK</span>
-                <div style="font-size:32px;font-weight:800;color:#0a1f0a">#${Math.floor(Math.random() * 50) + 1}</div>
-            </div>
-            <div class="leaderboard" style="background:rgba(0,0,0,0.25);border-radius:28px;padding:12px;max-height:250px;overflow-y:auto">
-                <div style="font-weight:700;color:#ffd966;margin-bottom:12px">TOP PLAYERS</div>
-                ${["Bearr1025", "Lx", "Robzi here?", "BLACK GHOST", "Эрнест"].map((n, i) => `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05)"><span>#${i + 1} ${n}</span><span style="color:#ffd966">${[431, 229, 135, 84, 48][i]}</span></div>`).join("")}
-            </div>
-            <button onclick="closeSeason()" class="tournament-btn" style="margin-top:20px;width:100%">CLOSE</button>
         `;
-    seasonModal.style.display = "flex";
+    showModal(modalHtml);
   }
 
-  window.closeProfile = () =>
-    (document.getElementById("profileScreen").style.display = "none");
-  window.closeSeason = () =>
-    (document.getElementById("seasonScreen").style.display = "none");
+  function showModal(html) {
+    let existingModal = document.getElementById("customModal");
+    if (existingModal) existingModal.remove();
+    const modalDiv = document.createElement("div");
+    modalDiv.id = "customModal";
+    modalDiv.className = "modal active";
+    modalDiv.innerHTML = html;
+    document.body.appendChild(modalDiv);
+    window.closeCustomModal = () => modalDiv.remove();
+    modalDiv.onclick = (e) => {
+      if (e.target === modalDiv) modalDiv.remove();
+    };
+  }
 
+  // Navigation buttons
   document.querySelectorAll(".nav-btn").forEach((btn) => {
     btn.onclick = () => {
       document
@@ -1130,10 +1152,7 @@ document.addEventListener("DOMContentLoaded", () => {
   switchMode("practice");
 
   function gameLoop() {
-    if (
-      gameRunning &&
-      document.getElementById("gamePanels")?.style.display !== "none"
-    ) {
+    if (gameRunning) {
       updatePlayer();
       updateCoins();
       updatePowerups();
@@ -1143,11 +1162,6 @@ document.addEventListener("DOMContentLoaded", () => {
     requestAnimationFrame(gameLoop);
   }
   gameLoop();
-  if (tg && tg.MainButton) {
-    tg.MainButton.setText(`💰 ${playerBalance}`).show();
-    tg.MainButton.onClick(() => {
-      if (gameMode === "tournament") deposit();
-    });
-  }
+
   console.log("DOODLE JUMP — GLASS STYLE READY");
 });
