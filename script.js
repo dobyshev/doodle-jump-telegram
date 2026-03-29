@@ -1,76 +1,20 @@
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("=== Doodle Jump — Telegram Mini App ===");
+  console.log("=== DOODLE JUMP — TELEGRAM MINI APP ===");
 
-  // ==================== НАСТРОЙКА TELEGRAM MINI APP ====================
-  const tg = window.Telegram?.WebApp;
-  if (tg) {
-    // Расширяем на весь экран
-    tg.expand();
-
-    // Отключаем свайп для закрытия (чтобы не мешал игре)
-    if (tg.disableVerticalSwipes) {
-      tg.disableVerticalSwipes();
+  // ==================== TELEGRAM SETUP ====================
+  let tg = null;
+  try {
+    tg = window.Telegram?.WebApp;
+    if (tg) {
+      tg.expand();
+      tg.ready();
+      console.log("Telegram WebApp initialized");
     }
-
-    // Включаем подтверждение закрытия
-    if (tg.enableClosingConfirmation) {
-      tg.enableClosingConfirmation();
-    }
-
-    // Сообщаем, что приложение готово
-    tg.ready();
-
-    // Устанавливаем цвет фона
-    if (tg.setBackgroundColor) tg.setBackgroundColor("#0a1f0a");
-    if (tg.setHeaderColor) tg.setHeaderColor("#0a1f0a");
+  } catch (e) {
+    console.log("Telegram WebApp error:", e);
   }
 
-  // Отключаем стандартное поведение скролла на canvas
-  const canvasElem = document.getElementById("gameCanvas");
-  if (canvasElem) {
-    canvasElem.addEventListener(
-      "touchmove",
-      (e) => {
-        e.preventDefault();
-      },
-      { passive: false },
-    );
-
-    canvasElem.addEventListener(
-      "touchstart",
-      (e) => {
-        e.preventDefault();
-      },
-      { passive: false },
-    );
-  }
-
-  // Разрешаем скролл только на панелях
-  const scrollAreas = document.querySelectorAll(
-    ".game-panel, .tournaments-container, .history-container",
-  );
-  scrollAreas.forEach((area) => {
-    area.addEventListener("touchmove", (e) => {
-      e.stopPropagation();
-    });
-  });
-
-  // ОТКЛЮЧАЕМ ТРЯСКУ НА ТЕЛЕФОНЕ
-  if ("vibrate" in navigator) {
-    navigator.vibrate = function () {}; // отключаем вибрацию
-  }
-
-  // Плавная прокрутка без рывков
-  document.body.style.overflow = "hidden";
-  document.body.style.touchAction = "none";
-
-  // Telegram
-  if (tg) {
-    tg.expand();
-    if (tg.enableClosingConfirmation) tg.enableClosingConfirmation();
-  }
-
-  // DOM элементы
+  // ==================== DOM ELEMENTS ====================
   const canvas = document.getElementById("gameCanvas");
   const ctx = canvas.getContext("2d");
   const scoreElement = document.getElementById("scoreValue");
@@ -85,19 +29,18 @@ document.addEventListener("DOMContentLoaded", () => {
   canvas.width = 400;
   canvas.height = 600;
 
-  // ==================== РЕЖИМЫ ====================
+  // ==================== GAME STATE ====================
   let gameMode = "practice";
   let gameRunning = true;
   let score = 0;
   let bestScore = localStorage.getItem("bestScore") || 0;
+  let combo = 0;
+  let multiplier = 1;
 
-  // ==================== БАЛАНС И ТУРНИРЫ ====================
+  // ==================== BALANCE & TOURNAMENTS ====================
   let playerBalance = 0;
-  let playerId =
-    "player_" +
-    (tg?.initDataUnsafe?.user?.id || Math.random().toString(36).substr(2, 8));
+  let playerId = "player_" + Math.random().toString(36).substr(2, 8);
   let currentTournament = null;
-
   let tournaments = [];
   let gameHistory = [];
 
@@ -124,7 +67,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function updateBalance() {
     if (balanceElement) balanceElement.textContent = playerBalance;
-    if (tg) tg.MainButton.setText(`💰 ${playerBalance}`);
+    if (tg && tg.MainButton) tg.MainButton.setText(`💰 ${playerBalance}`);
   }
 
   function addHistory(type, amount, desc) {
@@ -142,7 +85,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function deposit() {
     let amount = 100;
-    if (tg) {
+    if (tg && tg.showPopup) {
       tg.showPopup(
         {
           title: "💎 Пополнение",
@@ -160,7 +103,8 @@ document.addEventListener("DOMContentLoaded", () => {
             playerBalance += amount;
             saveData();
             addHistory("deposit", amount, `Пополнение на ${amount}`);
-            if (tg) tg.showAlert(`✅ Баланс пополнен на ${amount}`);
+            if (tg && tg.showAlert)
+              tg.showAlert(`✅ Баланс пополнен на ${amount}`);
           }
         },
       );
@@ -180,7 +124,7 @@ document.addEventListener("DOMContentLoaded", () => {
       alert("Минимальная сумма вывода: 10");
       return;
     }
-    if (tg) {
+    if (tg && tg.showPopup) {
       tg.showPopup(
         {
           title: "💸 Вывод",
@@ -195,7 +139,7 @@ document.addEventListener("DOMContentLoaded", () => {
             addHistory("withdraw", -playerBalance, `Вывод ${playerBalance}`);
             playerBalance = 0;
             saveData();
-            tg.showAlert("✅ Заявка отправлена!");
+            if (tg && tg.showAlert) tg.showAlert("✅ Заявка отправлена!");
           }
         },
       );
@@ -356,10 +300,8 @@ document.addEventListener("DOMContentLoaded", () => {
         .join("") || '<div class="empty-message">История пуста</div>';
   }
 
-  // ==================== ИГРОВАЯ ЛОГИКА ====================
-  let combo = 0,
-    multiplier = 1,
-    powerupTimer = 0,
+  // ==================== GAME LOGIC ====================
+  let powerupTimer = 0,
     activePowerup = null;
   let debris = [],
     particles = [],
@@ -474,65 +416,63 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  function handleDragMove(clientX, clientY) {
-    if (!gameRunning) return;
-    const rect = canvas.getBoundingClientRect();
-    let canvasX = (clientX - rect.left) * (canvas.width / rect.width);
-    canvasX = Math.max(0, Math.min(canvas.width, canvasX));
-    targetX = canvasX - player.width / 2;
-    isDragging = true;
-  }
+  // ==================== TOUCH CONTROLS (FIXED) ====================
+  canvas.style.touchAction = "none";
+  canvas.style.userSelect = "none";
 
-  function handleDragEnd() {
-    isDragging = false;
-    targetX = null;
-  }
-
-  function updateDragMovement() {
-    if (!gameRunning) return;
-    if (targetX !== null && isDragging) {
-      const diff = targetX - player.x;
-      const speed = Math.min(Math.abs(diff) * 0.3, 6);
-      player.velocityX = Math.sign(diff) * speed;
-    } else {
-      player.velocityX *= 0.96;
-    }
-    player.x += player.velocityX;
-  }
+  let touchStartX = 0;
 
   canvas.addEventListener("touchstart", (e) => {
     e.preventDefault();
-    handleDragMove(e.touches[0].clientX, e.touches[0].clientY);
+    e.stopPropagation();
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    touchStartX = (e.touches[0].clientX - rect.left) * scaleX;
   });
+
   canvas.addEventListener("touchmove", (e) => {
     e.preventDefault();
-    handleDragMove(e.touches[0].clientX, e.touches[0].clientY);
+    e.stopPropagation();
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    let currentX = (e.touches[0].clientX - rect.left) * scaleX;
+    let newX = player.x + (currentX - touchStartX);
+    newX = Math.max(0, Math.min(canvas.width - player.width, newX));
+    player.x = newX;
+    touchStartX = currentX;
   });
+
   canvas.addEventListener("touchend", (e) => {
     e.preventDefault();
-    handleDragEnd();
+    e.stopPropagation();
   });
-  canvas.addEventListener("mousedown", (e) => {
-    e.preventDefault();
-    handleDragMove(e.clientX, e.clientY);
-  });
-  canvas.addEventListener("mousemove", (e) => {
-    if (isDragging) {
-      e.preventDefault();
-      handleDragMove(e.clientX, e.clientY);
-    }
-  });
-  canvas.addEventListener("mouseup", (e) => {
-    e.preventDefault();
-    handleDragEnd();
-  });
-  canvas.addEventListener("mouseleave", () => handleDragEnd());
 
-  document.addEventListener("keydown", (e) => {
-    if ((e.code === "Space" || e.code === "Enter") && !gameRunning) {
-      e.preventDefault();
-      init();
-    }
+  // Mouse controls for PC
+  let isDraggingMouse = false;
+  canvas.addEventListener("mousedown", (e) => {
+    isDraggingMouse = true;
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    let mouseX = (e.clientX - rect.left) * scaleX;
+    player.x = Math.max(
+      0,
+      Math.min(canvas.width - player.width, mouseX - player.width / 2),
+    );
+  });
+
+  canvas.addEventListener("mousemove", (e) => {
+    if (!isDraggingMouse) return;
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    let mouseX = (e.clientX - rect.left) * scaleX;
+    player.x = Math.max(
+      0,
+      Math.min(canvas.width - player.width, mouseX - player.width / 2),
+    );
+  });
+
+  canvas.addEventListener("mouseup", () => {
+    isDraggingMouse = false;
   });
 
   function init() {
@@ -554,8 +494,6 @@ document.addEventListener("DOMContentLoaded", () => {
     player.velocityY = 0;
     player.velocityX = 0;
     player.rotation = 0;
-    targetX = null;
-    isDragging = false;
     cameraY = 0;
     platforms = [];
     coins = [];
@@ -652,7 +590,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     player.velocityY += grav;
     player.y += player.velocityY;
-    updateDragMovement();
+
     player.rotation += player.velocityX * 0.05;
     player.rotation *= 0.95;
 
@@ -1151,7 +1089,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Переключение режимов
   function switchMode(mode) {
     gameMode = mode;
     document.querySelectorAll(".mode-btn").forEach((btn) => {
@@ -1167,9 +1104,8 @@ document.addEventListener("DOMContentLoaded", () => {
     else renderTournaments();
   }
 
-  // Инициализация кнопок с проверкой существования
-  const modeBtns = document.querySelectorAll(".mode-btn");
-  modeBtns.forEach((btn) => {
+  // ==================== BUTTONS INIT ====================
+  document.querySelectorAll(".mode-btn").forEach((btn) => {
     btn.onclick = () => switchMode(btn.dataset.mode);
   });
 
@@ -1205,6 +1141,9 @@ document.addEventListener("DOMContentLoaded", () => {
     };
   }
 
+  if (restartButton) restartButton.onclick = () => init();
+
+  // ==================== START GAME ====================
   generateBackground();
   loadData();
   init();
@@ -1223,9 +1162,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   gameLoop();
 
-  if (restartButton) restartButton.onclick = () => init();
-
-  if (tg) {
+  if (tg && tg.MainButton) {
     tg.MainButton.setText(`💰 ${playerBalance}`).show();
     tg.MainButton.onClick(() => {
       if (gameMode === "tournament") deposit();
@@ -1233,5 +1170,5 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  console.log("Игра запущена!");
+  console.log("Игра запущена! Свайпы работают!");
 });

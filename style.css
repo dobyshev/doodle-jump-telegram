@@ -12,16 +12,8 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  font-family:
-    "Inter",
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    system-ui,
-    sans-serif;
+  font-family: "Inter", system-ui, sans-serif;
   padding: 16px;
-  overflow-y: auto;
-  overflow-x: hidden;
 }
 
 .game-container {
@@ -37,10 +29,7 @@ body {
   border-radius: 56px;
   padding: 20px;
   border: 1px solid rgba(255, 217, 102, 0.3);
-  box-shadow:
-    0 30px 50px rgba(0, 0, 0, 0.4),
-    inset 0 1px 1px rgba(255, 255, 255, 0.08);
-  margin: 20px auto;
+  box-shadow: 0 30px 50px rgba(0, 0, 0, 0.4);
 }
 
 .score-panel {
@@ -60,8 +49,6 @@ body {
   padding: 8px 18px;
   border-radius: 80px;
   border: 1px solid rgba(255, 215, 0, 0.5);
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
-  transition: all 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1);
 }
 
 .score-label,
@@ -84,7 +71,6 @@ body {
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  text-shadow: none;
 }
 
 .balance-box {
@@ -105,10 +91,8 @@ body {
   border: 1px solid #ffd966;
   color: #ffd966;
   font-size: 22px;
-  font-weight: bold;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .info-btn:active {
@@ -124,10 +108,8 @@ body {
   width: 100%;
   height: auto;
   cursor: pointer;
-  box-shadow:
-    0 16px 32px rgba(0, 0, 0, 0.5),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
-  transition: transform 0.1s ease;
+  touch-action: none;
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.5);
 }
 
 .mode-switch {
@@ -137,7 +119,6 @@ body {
   background: rgba(0, 0, 0, 0.4);
   padding: 6px;
   border-radius: 80px;
-  backdrop-filter: blur(12px);
 }
 
 .mode-btn {
@@ -149,16 +130,14 @@ body {
   color: #ffd966;
   font-weight: 700;
   font-size: 14px;
-  letter-spacing: 0.5px;
   cursor: pointer;
-  transition: all 0.25s ease;
+  transition: all 0.2s ease;
 }
 
 .mode-btn.active {
   background: linear-gradient(135deg, #ffd966, #ffaa33);
   color: #0a1f0a;
   box-shadow: 0 6px 18px rgba(255, 217, 102, 0.5);
-  transform: scale(1.02);
 }
 
 .game-panel {
@@ -168,28 +147,13 @@ body {
   border-radius: 36px;
   padding: 18px;
   backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 215, 0, 0.2);
   max-height: 420px;
   overflow-y: auto;
 }
 
-.game-panel::-webkit-scrollbar {
-  width: 4px;
-}
-
-.game-panel::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 10px;
-}
-
-.game-panel::-webkit-scrollbar-thumb {
-  background: #ffd966;
-  border-radius: 10px;
-}
-
 .game-panel.active {
   display: block;
-  animation: fadeInScale 0.35s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+  animation: fadeInScale 0.35s ease;
 }
 
 @keyframes fadeInScale {
@@ -230,7 +194,6 @@ body {
   margin-bottom: 20px;
   color: #ffd966;
   font-weight: 800;
-  font-size: 15px;
   background: rgba(0, 0, 0, 0.3);
   padding: 12px 16px;
   border-radius: 60px;
@@ -246,7 +209,6 @@ body {
   border-radius: 60px;
   font-size: 11px;
   color: #ffaa66;
-  font-weight: 700;
 }
 
 .tournament-create {
@@ -264,9 +226,7 @@ body {
   padding: 14px 16px;
   border-radius: 60px;
   font-size: 14px;
-  font-weight: 500;
   outline: none;
-  transition: all 0.2s ease;
 }
 
 .tournament-create input:focus,
@@ -290,21 +250,17 @@ body {
   padding: 14px 26px;
   border-radius: 60px;
   font-weight: 800;
-  font-size: 14px;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.3);
 }
 
 .tournament-btn:active {
   transform: scale(0.96);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 
 .tournament-btn.create {
   background: linear-gradient(135deg, #4caf50, #1b5e20);
   color: white;
-  box-shadow: 0 6px 14px rgba(76, 175, 80, 0.3);
 }
 
 .tournament-btn.join {
@@ -312,7 +268,6 @@ body {
   color: white;
   padding: 10px 18px;
   font-size: 13px;
-  box-shadow: 0 4px 10px rgba(33, 150, 243, 0.3);
 }
 
 .section-title {
@@ -322,14 +277,6 @@ body {
   letter-spacing: 1.5px;
   margin: 24px 0 14px;
   text-transform: uppercase;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.section-title::before {
-  content: "✨";
-  font-size: 14px;
 }
 
 .tournaments-container,
@@ -346,12 +293,10 @@ body {
   text-align: center;
   font-size: 13px;
   padding: 32px;
-  font-weight: 500;
 }
 
 .tournament-card {
   background: linear-gradient(145deg, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.35));
-  backdrop-filter: blur(8px);
   border-radius: 24px;
   padding: 14px;
   margin-bottom: 12px;
@@ -359,16 +304,10 @@ body {
   justify-content: space-between;
   align-items: center;
   border-left: 5px solid #ffd966;
-  transition: all 0.2s ease;
 }
 
 .tournament-card:active {
   transform: scale(0.98);
-  background: rgba(0, 0, 0, 0.65);
-}
-
-.tournament-info {
-  flex: 1;
 }
 
 .tournament-stake {
@@ -385,9 +324,6 @@ body {
   font-size: 11px;
   color: #b8d4b8;
   margin-top: 4px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
 }
 
 .tournament-status {
@@ -398,7 +334,6 @@ body {
   color: white;
   display: inline-block;
   margin-top: 8px;
-  font-weight: 700;
 }
 
 .wallet-actions {
@@ -419,7 +354,6 @@ body {
   cursor: pointer;
   transition: all 0.2s ease;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
 }
 
 .wallet-btn:active {
@@ -429,13 +363,11 @@ body {
 .wallet-btn.deposit {
   background: linear-gradient(135deg, #4caf50, #1b5e20);
   color: white;
-  box-shadow: 0 6px 14px rgba(76, 175, 80, 0.3);
 }
 
 .wallet-btn.withdraw {
   background: linear-gradient(135deg, #ff9800, #e65100);
   color: white;
-  box-shadow: 0 6px 14px rgba(255, 152, 0, 0.3);
 }
 
 .history-item {
@@ -445,26 +377,18 @@ body {
   margin-bottom: 10px;
   display: flex;
   justify-content: space-between;
-  align-items: center;
   font-size: 12px;
   color: #d4e8d4;
-  transition: all 0.2s ease;
-}
-
-.history-item:active {
-  background: rgba(0, 0, 0, 0.6);
 }
 
 .history-win {
   color: #4caf50;
   font-weight: 800;
-  font-size: 14px;
 }
 
 .history-lose {
   color: #f44336;
   font-weight: 800;
-  font-size: 14px;
 }
 
 .restart-btn {
@@ -476,15 +400,12 @@ body {
   padding: 16px 36px;
   border-radius: 80px;
   cursor: pointer;
-  transition: all 0.25s ease;
+  transition: all 0.2s ease;
   display: none;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
-  letter-spacing: 1px;
 }
 
 .restart-btn:active {
   transform: scale(0.96);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
 
 .modal {
@@ -523,8 +444,7 @@ body {
   max-height: 80vh;
   overflow-y: auto;
   border: 1px solid #ffd966;
-  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6);
-  animation: slideUp 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+  animation: slideUp 0.3s ease;
 }
 
 @keyframes slideUp {
@@ -550,7 +470,6 @@ body {
   color: #ffd966;
   font-size: 26px;
   font-weight: 800;
-  letter-spacing: -0.5px;
 }
 
 .modal-close {
@@ -560,17 +479,10 @@ body {
   font-size: 36px;
   cursor: pointer;
   transition: all 0.2s ease;
-  width: 44px;
-  height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
 }
 
 .modal-close:active {
   transform: scale(0.9);
-  background: rgba(255, 217, 102, 0.2);
 }
 
 .modal-body {
