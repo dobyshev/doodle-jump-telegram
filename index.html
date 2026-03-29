@@ -46,18 +46,6 @@
         border: 1px solid rgba(255, 217, 102, 0.3);
       }
 
-      /* Скрываем панели, пока не началась игра */
-      .game-panels {
-        display: none;
-      }
-
-      .game-panels.active {
-        display: flex;
-        flex-direction: column;
-        width: 100%;
-        gap: 16px;
-      }
-
       /* Главный экран */
       .main-screen {
         display: flex;
@@ -84,7 +72,6 @@
         background-clip: text;
         color: transparent;
         text-shadow: 0 0 30px rgba(255, 217, 102, 0.3);
-        letter-spacing: -1px;
       }
 
       .game-title p {
@@ -109,12 +96,7 @@
         padding: 18px;
         border-radius: 80px;
         cursor: pointer;
-        transition: all 0.2s ease;
         box-shadow: 0 10px 25px rgba(255, 217, 102, 0.3);
-      }
-
-      .play-btn:active {
-        transform: scale(0.97);
       }
 
       .profile-btn {
@@ -126,75 +108,228 @@
         padding: 14px;
         border-radius: 80px;
         cursor: pointer;
-        transition: all 0.2s ease;
       }
 
-      .profile-btn:active {
-        transform: scale(0.97);
-        background: #ffd966;
-        color: #0a1f0a;
-      }
-
-      /* Профиль */
-      .profile-screen {
+      /* Панель ПРОФИЛЬ */
+      .profile-screen,
+      .season-screen {
         display: none;
         flex-direction: column;
         align-items: center;
-        gap: 24px;
+        gap: 20px;
         width: 100%;
       }
 
-      .profile-screen.active {
+      .profile-screen.active,
+      .season-screen.active {
         display: flex;
       }
 
+      .profile-header,
+      .season-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        padding: 10px 0;
+      }
+
       .profile-avatar {
-        width: 100px;
-        height: 100px;
+        width: 80px;
+        height: 80px;
         background: linear-gradient(135deg, #ffd966, #ffaa33);
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 48px;
-        margin: 10px 0;
+        font-size: 40px;
       }
 
-      .profile-stats {
+      .profile-level {
+        background: rgba(0, 0, 0, 0.5);
+        padding: 8px 16px;
+        border-radius: 60px;
+        text-align: center;
+      }
+
+      .level-number {
+        font-size: 28px;
+        font-weight: 800;
+        color: #ffd966;
+      }
+
+      .level-label {
+        font-size: 12px;
+        color: #a8d4a8;
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
         width: 100%;
-        background: rgba(0, 0, 0, 0.4);
-        border-radius: 32px;
-        padding: 20px;
       }
 
-      .stat-row {
+      .stat-card {
+        background: rgba(0, 0, 0, 0.4);
+        border-radius: 24px;
+        padding: 16px;
+        text-align: center;
+      }
+
+      .stat-card-value {
+        font-size: 24px;
+        font-weight: 800;
+        color: #ffd966;
+      }
+
+      .stat-card-label {
+        font-size: 11px;
+        color: #a8d4a8;
+        margin-top: 5px;
+      }
+
+      /* Панель СЕЗОН */
+      .season-timer {
+        background: rgba(0, 0, 0, 0.5);
+        border-radius: 60px;
+        padding: 12px 20px;
+        text-align: center;
+        width: 100%;
+      }
+
+      .timer-label {
+        font-size: 11px;
+        color: #a8d4a8;
+        letter-spacing: 1px;
+      }
+
+      .timer-value {
+        font-size: 20px;
+        font-weight: 800;
+        color: #ffd966;
+        font-family: monospace;
+      }
+
+      .rank-badge {
+        background: linear-gradient(135deg, #ffd966, #ffaa33);
+        border-radius: 40px;
+        padding: 8px 20px;
+        text-align: center;
+        width: 100%;
+      }
+
+      .rank-badge span:first-child {
+        font-size: 12px;
+        color: #0a1f0a;
+      }
+
+      .rank-number {
+        font-size: 36px;
+        font-weight: 800;
+        color: #0a1f0a;
+      }
+
+      .leaderboard {
+        width: 100%;
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 32px;
+        padding: 16px;
+        max-height: 350px;
+        overflow-y: auto;
+      }
+
+      .leaderboard-title {
+        font-size: 14px;
+        font-weight: 700;
+        color: #ffd966;
+        margin-bottom: 12px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid rgba(255, 217, 102, 0.3);
+      }
+
+      .leaderboard-item {
         display: flex;
-        justify-content: space-between;
-        padding: 12px 0;
-        border-bottom: 1px solid rgba(255, 217, 102, 0.2);
+        align-items: center;
+        gap: 12px;
+        padding: 10px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      }
+
+      .rank {
+        width: 35px;
+        font-weight: 800;
+        color: #ffd966;
+      }
+
+      .rank-1 {
+        color: #ffd700;
+      }
+      .rank-2 {
+        color: #c0c0c0;
+      }
+      .rank-3 {
+        color: #cd7f32;
+      }
+
+      .avatar-small {
+        width: 40px;
+        height: 40px;
+        background: rgba(255, 217, 102, 0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+      }
+
+      .player-name {
+        flex: 1;
+        font-weight: 600;
         color: #d4e8d4;
       }
 
-      .stat-label {
-        font-weight: 600;
-        color: #ffd966;
-      }
-
-      .stat-value {
+      .player-score {
         font-weight: 800;
-        font-size: 18px;
+        color: #ffd966;
       }
 
-      .back-btn {
-        background: rgba(0, 0, 0, 0.5);
-        border: 1px solid #ffd966;
-        color: #ffd966;
-        font-size: 16px;
-        font-weight: 600;
-        padding: 12px;
-        border-radius: 80px;
-        cursor: pointer;
+      .season-rewards {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
         width: 100%;
+        margin-top: 10px;
+      }
+
+      .reward-item {
+        flex: 1;
+        background: rgba(0, 0, 0, 0.4);
+        border-radius: 20px;
+        padding: 12px;
+        text-align: center;
+      }
+
+      .reward-icon {
+        font-size: 28px;
+      }
+
+      .reward-amount {
+        font-size: 14px;
+        font-weight: 800;
+        color: #ffd966;
+      }
+
+      /* Игровые панели */
+      .game-panels {
+        display: none;
+        flex-direction: column;
+        width: 100%;
+        gap: 16px;
+      }
+
+      .game-panels.active {
+        display: flex;
       }
 
       .score-panel {
@@ -483,7 +618,7 @@
 
       .bottom-nav {
         display: flex;
-        gap: 20px;
+        gap: 8px;
         width: 100%;
         margin-top: 10px;
         padding-top: 15px;
@@ -495,12 +630,11 @@
         background: rgba(0, 0, 0, 0.5);
         border: 1px solid #ffd966;
         color: #ffd966;
-        padding: 12px;
+        padding: 12px 8px;
         border-radius: 60px;
         font-weight: 700;
-        font-size: 14px;
+        font-size: 13px;
         cursor: pointer;
-        transition: all 0.2s ease;
         text-align: center;
       }
 
@@ -509,8 +643,17 @@
         color: #0a1f0a;
       }
 
-      .nav-btn:active {
-        transform: scale(0.97);
+      .back-btn {
+        background: rgba(0, 0, 0, 0.5);
+        border: 1px solid #ffd966;
+        color: #ffd966;
+        font-size: 16px;
+        font-weight: 600;
+        padding: 12px;
+        border-radius: 80px;
+        cursor: pointer;
+        width: 100%;
+        text-align: center;
       }
 
       .modal {
@@ -602,29 +745,70 @@
 
       <!-- Экран профиля -->
       <div id="profileScreen" class="profile-screen">
-        <div class="profile-avatar">🎮</div>
-        <div class="profile-stats">
-          <div class="stat-row">
-            <span class="stat-label">💰 БАЛАНС</span>
-            <span class="stat-value" id="profileBalance">0</span>
+        <div class="profile-header">
+          <div class="profile-avatar">🎮</div>
+          <div class="profile-level">
+            <div class="level-number" id="profileLevel">1</div>
+            <div class="level-label">УРОВЕНЬ</div>
           </div>
-          <div class="stat-row">
-            <span class="stat-label">🏆 ЛУЧШИЙ СЧЕТ</span>
-            <span class="stat-value" id="profileBestScore">0</span>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-card-value" id="profileBalance">0</div>
+            <div class="stat-card-label">💰 БАЛАНС</div>
           </div>
-          <div class="stat-row">
-            <span class="stat-label">🎮 ИГР СЫГРАНО</span>
-            <span class="stat-value" id="profileGamesPlayed">0</span>
+          <div class="stat-card">
+            <div class="stat-card-value" id="profileBestScore">0</div>
+            <div class="stat-card-label">🏆 РЕКОРД</div>
           </div>
-          <div class="stat-row">
-            <span class="stat-label">🏆 ТУРНИРОВ</span>
-            <span class="stat-value" id="profileTournaments">0</span>
+          <div class="stat-card">
+            <div class="stat-card-value" id="profileGamesPlayed">0</div>
+            <div class="stat-card-label">🎮 ИГР</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-value" id="profileTournaments">0</div>
+            <div class="stat-card-label">🏆 ТУРНИРОВ</div>
           </div>
         </div>
         <button id="backFromProfileBtn" class="back-btn">← НАЗАД</button>
       </div>
 
-      <!-- Игровые панели (скрыты, пока не нажали ИГРАТЬ) -->
+      <!-- Экран сезона -->
+      <div id="seasonScreen" class="season-screen">
+        <div class="season-timer">
+          <div class="timer-label">ДО КОНЦА СЕЗОНА</div>
+          <div class="timer-value" id="seasonTimer">26д 22ч 32м</div>
+        </div>
+        <div class="rank-badge">
+          <span>🏆 ВАШ РЕЙТИНГ</span>
+          <div class="rank-number" id="playerRank">#4</div>
+        </div>
+        <div class="leaderboard">
+          <div class="leaderboard-title">🏆 ТОП ИГРОКОВ</div>
+          <div id="leaderboardContainer"></div>
+        </div>
+        <div class="season-rewards">
+          <div class="reward-item">
+            <div class="reward-icon">🥇</div>
+            <div class="reward-amount">1000</div>
+          </div>
+          <div class="reward-item">
+            <div class="reward-icon">🥈</div>
+            <div class="reward-amount">500</div>
+          </div>
+          <div class="reward-item">
+            <div class="reward-icon">🥉</div>
+            <div class="reward-amount">250</div>
+          </div>
+          <div class="reward-item">
+            <div class="reward-icon">🎁</div>
+            <div class="reward-amount">100</div>
+          </div>
+        </div>
+        <button id="backFromSeasonBtn" class="back-btn">← НАЗАД</button>
+      </div>
+
+      <!-- Игровые панели -->
       <div id="gamePanels" class="game-panels">
         <div class="score-panel">
           <div class="score-box">
@@ -651,7 +835,6 @@
           <button class="mode-btn" data-mode="tournament">🏆 TOURNAMENT</button>
         </div>
 
-        <!-- Турнирная панель -->
         <div id="tournamentPanel" class="tournament-panel">
           <div class="tournament-header">
             <span>🏆 REAL MONEY TOURNAMENT</span>
@@ -711,6 +894,7 @@
         <button class="nav-btn" data-nav="game">🎮 ИГРА</button>
         <button class="nav-btn" data-nav="tournament">🏆 ТУРНИР</button>
         <button class="nav-btn" data-nav="profile">👤 ПРОФИЛЬ</button>
+        <button class="nav-btn" data-nav="season">📅 СЕЗОН</button>
       </div>
     </div>
 
@@ -731,16 +915,7 @@
             <h3>🏆 TWO MODES</h3>
             <p><strong>🎮 TRAINING</strong> — Free play</p>
             <p><strong>🏆 TOURNAMENT</strong> — Real money bets</p>
-            <p>⚡ Platform fee: <strong style="color: #ffd966">10%</strong></p>
-          </div>
-          <div class="info-section">
-            <h3>⭐ PLATFORMS</h3>
-            <p>🟫 Normal — standard jump</p>
-            <p>🟡 Gold — +50 points</p>
-            <p>🟠 Bounce — super high jump</p>
-            <p>🔵 Ice — slippery</p>
-            <p>☁️ Cloud — soft jump</p>
-            <p>🍄 Mushroom — +20 points</p>
+            <p>⚡ Platform fee: <strong>10%</strong></p>
           </div>
         </div>
       </div>

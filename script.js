@@ -14,6 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // ==================== DOM ELEMENTS ====================
   const mainScreen = document.getElementById("mainScreen");
   const profileScreen = document.getElementById("profileScreen");
+  const seasonScreen = document.getElementById("seasonScreen");
   const gamePanels = document.getElementById("gamePanels");
   const bottomNav = document.getElementById("bottomNav");
   const canvas = document.getElementById("gameCanvas");
@@ -40,6 +41,55 @@ document.addEventListener("DOMContentLoaded", () => {
     parseInt(localStorage.getItem("tournamentsPlayed")) || 0;
   let combo = 0;
   let multiplier = 1;
+
+  // ==================== СЕЗОН И РЕЙТИНГ ====================
+  let playerRank = parseInt(localStorage.getItem("playerRank")) || 42;
+  let seasonEnd = new Date();
+  seasonEnd.setDate(seasonEnd.getDate() + 26);
+  seasonEnd.setHours(22, 32, 0, 0);
+
+  function updateSeasonTimer() {
+    const now = new Date();
+    const diff = seasonEnd - now;
+    if (diff <= 0) {
+      document.getElementById("seasonTimer").textContent = "СЕЗОН ЗАВЕРШЁН";
+      return;
+    }
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff % 86400000) / 3600000);
+    const minutes = Math.floor((diff % 3600000) / 60000);
+    document.getElementById("seasonTimer").textContent =
+      `${days}д ${hours}ч ${minutes}м`;
+  }
+
+  // Топ игроков (демо-данные)
+  const leaderboardData = [
+    { name: "Bearr1025", score: 431, level: 24 },
+    { name: "Lx", score: 229, level: 15 },
+    { name: "Robzi here?", score: 135, level: 9 },
+    { name: "BLACK GHOST", score: 84, level: 26 },
+    { name: "Эрнест", score: 48, level: 15 },
+    { name: "XS", score: 46, level: 4 },
+    { name: "Краш", score: 46, level: 4 },
+  ];
+
+  function renderLeaderboard() {
+    const container = document.getElementById("leaderboardContainer");
+    if (!container) return;
+
+    container.innerHTML = leaderboardData
+      .map(
+        (player, idx) => `
+            <div class="leaderboard-item">
+                <div class="rank ${idx === 0 ? "rank-1" : idx === 1 ? "rank-2" : idx === 2 ? "rank-3" : ""}">#${idx + 1}</div>
+                <div class="avatar-small">${idx === 0 ? "👑" : "🎮"}</div>
+                <div class="player-name">${player.name}</div>
+                <div class="player-score">${player.score}</div>
+            </div>
+        `,
+      )
+      .join("");
+  }
 
   // ==================== BALANCE & TOURNAMENTS ====================
   let playerBalance = 0;
@@ -82,6 +132,11 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("profileGamesPlayed").textContent = gamesPlayed;
     document.getElementById("profileTournaments").textContent =
       tournamentsPlayed;
+
+    // Уровень рассчитывается из лучшего счета
+    const level = Math.floor(bestScore / 100) + 1;
+    document.getElementById("profileLevel").textContent = level;
+    document.getElementById("playerRank").textContent = `#${playerRank}`;
   }
 
   function addHistory(type, amount, desc) {
@@ -98,20 +153,51 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function deposit() {
-    // Функция пополнения (убрали кнопку, но оставили для совместимости)
-    console.log("Deposit function available");
+    // Функция пополнения через Telegram Stars
+    if (tg && tg.showPopup) {
+      tg.showPopup(
+        {
+          title: "💎 Пополнение",
+          message: "Выберите сумму (Telegram Stars)",
+          buttons: [
+            { id: "100", text: "100⭐" },
+            { id: "500", text: "500⭐" },
+            { id: "1000", text: "1000⭐" },
+            { id: "cancel", text: "Отмена", type: "cancel" },
+          ],
+        },
+        (id) => {
+          if (id !== "cancel") {
+            const amount = parseInt(id);
+            playerBalance += amount;
+            saveData();
+            addHistory("deposit", amount, `Пополнение на ${amount}⭐`);
+            if (tg && tg.showAlert)
+              tg.showAlert(`✅ Баланс пополнен на ${amount}⭐`);
+          }
+        },
+      );
+    } else {
+      const amount = parseInt(prompt("Сумма пополнения (демо):", "100"));
+      if (amount > 0) {
+        playerBalance += amount;
+        saveData();
+        addHistory("deposit", amount, `Пополнение на ${amount}⭐`);
+        alert(`✅ Баланс пополнен на ${amount}⭐`);
+      }
+    }
   }
 
   function withdraw() {
     if (playerBalance < 10) {
-      alert("Минимальная сумма вывода: 10");
+      alert("Минимальная сумма вывода: 10⭐");
       return;
     }
     if (tg && tg.showPopup) {
       tg.showPopup(
         {
           title: "💸 Вывод",
-          message: `Вывести ${playerBalance}?`,
+          message: `Вывести ${playerBalance}⭐?`,
           buttons: [
             { id: "confirm", text: "Вывести" },
             { id: "cancel", text: "Отмена", type: "cancel" },
@@ -119,7 +205,7 @@ document.addEventListener("DOMContentLoaded", () => {
         },
         (id) => {
           if (id === "confirm") {
-            addHistory("withdraw", -playerBalance, `Вывод ${playerBalance}`);
+            addHistory("withdraw", -playerBalance, `Вывод ${playerBalance}⭐`);
             playerBalance = 0;
             saveData();
             if (tg && tg.showAlert) tg.showAlert("✅ Заявка отправлена!");
@@ -127,8 +213,8 @@ document.addEventListener("DOMContentLoaded", () => {
         },
       );
     } else {
-      if (confirm(`Вывести ${playerBalance}?`)) {
-        addHistory("withdraw", -playerBalance, `Вывод ${playerBalance}`);
+      if (confirm(`Вывести ${playerBalance}⭐?`)) {
+        addHistory("withdraw", -playerBalance, `Вывод ${playerBalance}⭐`);
         playerBalance = 0;
         saveData();
         alert("✅ Заявка отправлена!");
@@ -138,7 +224,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function createTournament(stake, maxPlayers) {
     if (playerBalance < stake) {
-      alert(`❌ Не хватает ${stake}`);
+      alert(`❌ Не хватает ${stake}⭐`);
       return false;
     }
     playerBalance -= stake;
@@ -155,7 +241,7 @@ document.addEventListener("DOMContentLoaded", () => {
     tournaments.push(tournament);
     currentTournament = tournament;
     saveData();
-    addHistory("create", -stake, `Создан турнир на ${stake}`);
+    addHistory("create", -stake, `Создан турнир на ${stake}⭐`);
     renderTournaments();
     alert(`✅ Турнир создан! Ожидайте участников`);
     return true;
@@ -165,7 +251,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const t = tournaments.find((t) => t.id === tId);
     if (!t || t.status !== "waiting") return alert("Турнир недоступен");
     if (t.players.length >= t.maxPlayers) return alert("Турнир заполнен");
-    if (playerBalance < t.stake) return alert(`Не хватает ${t.stake}`);
+    if (playerBalance < t.stake) return alert(`Не хватает ${t.stake}⭐`);
     if (t.players.some((p) => p.id === playerId))
       return alert("Вы уже участвуете");
 
@@ -173,7 +259,7 @@ document.addEventListener("DOMContentLoaded", () => {
     t.players.push({ id: playerId, score: 0, finished: false });
     currentTournament = t;
     saveData();
-    addHistory("join", -t.stake, `Вступление в турнир на ${t.stake}`);
+    addHistory("join", -t.stake, `Вступление в турнир на ${t.stake}⭐`);
     renderTournaments();
     alert(`✅ Вы вступили в турнир!`);
     return true;
@@ -197,8 +283,8 @@ document.addEventListener("DOMContentLoaded", () => {
           const prize = currentTournament.prizePool - commission;
           if (winner.id === playerId) {
             playerBalance += prize;
-            addHistory("win", prize, `🏆 Победа! +${prize}`);
-            alert(`🏆 ПОБЕДА! Выигрыш: ${prize}`);
+            addHistory("win", prize, `🏆 Победа! +${prize}⭐`);
+            alert(`🏆 ПОБЕДА! Выигрыш: ${prize}⭐`);
           } else {
             addHistory(
               "lose",
@@ -220,6 +306,9 @@ document.addEventListener("DOMContentLoaded", () => {
       if (score > bestScore) {
         bestScore = score;
         localStorage.setItem("bestScore", bestScore);
+        // Обновляем рейтинг
+        playerRank = Math.max(1, 50 - Math.floor(bestScore / 50));
+        localStorage.setItem("playerRank", playerRank);
       }
     }
     updateProfileStats();
@@ -239,9 +328,9 @@ document.addEventListener("DOMContentLoaded", () => {
             (t) => `
             <div class="tournament-card">
                 <div class="tournament-info">
-                    <div class="tournament-stake">💰 ${t.stake}₽</div>
+                    <div class="tournament-stake">💰 ${t.stake}⭐</div>
                     <div>👥 ${t.players.length}/${t.maxPlayers}</div>
-                    <div class="tournament-prize">🏆 ${t.stake * t.maxPlayers}₽</div>
+                    <div class="tournament-prize">🏆 ${t.stake * t.maxPlayers}⭐</div>
                 </div>
                 ${
                   !t.players.some((p) => p.id === playerId)
@@ -264,7 +353,7 @@ document.addEventListener("DOMContentLoaded", () => {
             (t) => `
             <div class="tournament-card">
                 <div class="tournament-info">
-                    <div>💰 ${t.stake}₽</div>
+                    <div>💰 ${t.stake}⭐</div>
                     <div>👥 ${t.players.length}/${t.maxPlayers}</div>
                     <span class="tournament-status">${t.status === "waiting" ? "⏳ Ожидание" : "🎮 Игра"}</span>
                 </div>
@@ -293,7 +382,6 @@ document.addEventListener("DOMContentLoaded", () => {
     activePowerup = null;
   let debris = [],
     particles = [],
-    targetX = null,
     isDragging = false;
   let obstacles = [],
     powerups = [];
@@ -1081,6 +1169,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function showMainScreen() {
     mainScreen.style.display = "flex";
     profileScreen.classList.remove("active");
+    seasonScreen.classList.remove("active");
     gamePanels.classList.remove("active");
     bottomNav.style.display = "none";
   }
@@ -1088,14 +1177,26 @@ document.addEventListener("DOMContentLoaded", () => {
   function showProfileScreen() {
     mainScreen.style.display = "none";
     profileScreen.classList.add("active");
+    seasonScreen.classList.remove("active");
     gamePanels.classList.remove("active");
     bottomNav.style.display = "none";
     updateProfileStats();
   }
 
+  function showSeasonScreen() {
+    mainScreen.style.display = "none";
+    profileScreen.classList.remove("active");
+    seasonScreen.classList.add("active");
+    gamePanels.classList.remove("active");
+    bottomNav.style.display = "none";
+    updateSeasonTimer();
+    renderLeaderboard();
+  }
+
   function showGameScreen() {
     mainScreen.style.display = "none";
     profileScreen.classList.remove("active");
+    seasonScreen.classList.remove("active");
     gamePanels.classList.add("active");
     bottomNav.style.display = "flex";
     init();
@@ -1118,6 +1219,8 @@ document.addEventListener("DOMContentLoaded", () => {
       document.querySelector('.mode-btn[data-mode="tournament"]').click();
     } else if (tab === "profile") {
       showProfileScreen();
+    } else if (tab === "season") {
+      showSeasonScreen();
     }
   }
 
@@ -1126,6 +1229,7 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("profileMainBtn").onclick = () => showProfileScreen();
   document.getElementById("backFromProfileBtn").onclick = () =>
     showMainScreen();
+  document.getElementById("backFromSeasonBtn").onclick = () => showMainScreen();
 
   document.querySelectorAll(".nav-btn").forEach((btn) => {
     btn.onclick = () => switchGameTab(btn.dataset.nav);
@@ -1153,7 +1257,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const stake = stakeInput ? parseInt(stakeInput.value) : 100;
       const maxPlayers = groupSelect ? parseInt(groupSelect.value) : 2;
       if (stake < 10) {
-        alert("Минимальная ставка: 10");
+        alert("Минимальная ставка: 10⭐");
         return;
       }
       createTournament(stake, maxPlayers);
@@ -1176,6 +1280,7 @@ document.addEventListener("DOMContentLoaded", () => {
   init();
   renderTournaments();
   switchMode("practice");
+  setInterval(updateSeasonTimer, 60000); // Обновляем таймер каждую минуту
 
   function gameLoop() {
     if (gameRunning && gamePanels.classList.contains("active")) {
@@ -1197,5 +1302,5 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  console.log("Игра запущена! Премиум версия с профилем");
+  console.log("Игра запущена! Добавлены панели ПРОФИЛЬ и СЕЗОН");
 });
