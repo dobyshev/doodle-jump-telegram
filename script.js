@@ -1,6 +1,15 @@
 document.addEventListener("DOMContentLoaded", () => {
   console.log("=== Doodle Jump — Telegram Mini App ===");
 
+  // ОТКЛЮЧАЕМ ТРЯСКУ НА ТЕЛЕФОНЕ
+  if ("vibrate" in navigator) {
+    navigator.vibrate = function () {}; // отключаем вибрацию
+  }
+
+  // Плавная прокрутка без рывков
+  document.body.style.overflow = "hidden";
+  document.body.style.touchAction = "none";
+
   // Telegram
   let tg = window.Telegram?.WebApp;
   if (tg) {
