@@ -14,14 +14,30 @@
     <link rel="stylesheet" href="style.css" />
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-      /* Дополнительные стили для плавности */
+      /* Полное отключение навигационных свайпов в Telegram */
       body {
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        margin: 0;
+        padding: 0;
       }
 
       .game-container {
         margin: 16px auto;
+        height: calc(100vh - 32px);
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      /* Скрываем скроллбар но оставляем возможность скролла */
+      .game-container::-webkit-scrollbar {
+        width: 0;
+        background: transparent;
       }
 
       /* Улучшенный скролл для панелей */
@@ -45,10 +61,21 @@
         border-radius: 10px;
       }
 
-      /* Убираем стандартные стили кнопок на iOS */
+      /* Отключаем стандартные стили кнопок на iOS */
       button {
         -webkit-appearance: none;
         appearance: none;
+        touch-action: manipulation;
+      }
+
+      /* Запрещаем скролл на canvas для игрового управления */
+      canvas {
+        touch-action: none;
+      }
+
+      /* Разрешаем скролл только на панелях */
+      .game-panel {
+        touch-action: pan-y;
       }
     </style>
   </head>
@@ -171,11 +198,11 @@
           <div class="info-section">
             <h3>🎯 CONTROLS</h3>
             <p>
-              👆 Slide your finger/mouse across the screen — the character
-              follows you
+              👆 Slide your finger across the screen — the character follows you
             </p>
-            <p>📱 On phone: just drag anywhere on the screen</p>
+            <p>📱 Swipe anywhere on the game screen to move</p>
             <p>💻 On PC: drag with mouse</p>
+            <p>⬆️ Scroll down to see tournaments and history</p>
           </div>
 
           <div class="info-section">

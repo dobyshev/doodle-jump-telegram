@@ -1,6 +1,60 @@
 document.addEventListener("DOMContentLoaded", () => {
   console.log("=== Doodle Jump — Telegram Mini App ===");
 
+  // ==================== НАСТРОЙКА TELEGRAM MINI APP ====================
+  const tg = window.Telegram?.WebApp;
+  if (tg) {
+    // Расширяем на весь экран
+    tg.expand();
+
+    // Отключаем свайп для закрытия (чтобы не мешал игре)
+    if (tg.disableVerticalSwipes) {
+      tg.disableVerticalSwipes();
+    }
+
+    // Включаем подтверждение закрытия
+    if (tg.enableClosingConfirmation) {
+      tg.enableClosingConfirmation();
+    }
+
+    // Сообщаем, что приложение готово
+    tg.ready();
+
+    // Устанавливаем цвет фона
+    if (tg.setBackgroundColor) tg.setBackgroundColor("#0a1f0a");
+    if (tg.setHeaderColor) tg.setHeaderColor("#0a1f0a");
+  }
+
+  // Отключаем стандартное поведение скролла на canvas
+  const canvasElem = document.getElementById("gameCanvas");
+  if (canvasElem) {
+    canvasElem.addEventListener(
+      "touchmove",
+      (e) => {
+        e.preventDefault();
+      },
+      { passive: false },
+    );
+
+    canvasElem.addEventListener(
+      "touchstart",
+      (e) => {
+        e.preventDefault();
+      },
+      { passive: false },
+    );
+  }
+
+  // Разрешаем скролл только на панелях
+  const scrollAreas = document.querySelectorAll(
+    ".game-panel, .tournaments-container, .history-container",
+  );
+  scrollAreas.forEach((area) => {
+    area.addEventListener("touchmove", (e) => {
+      e.stopPropagation();
+    });
+  });
+
   // ОТКЛЮЧАЕМ ТРЯСКУ НА ТЕЛЕФОНЕ
   if ("vibrate" in navigator) {
     navigator.vibrate = function () {}; // отключаем вибрацию
@@ -11,7 +65,6 @@ document.addEventListener("DOMContentLoaded", () => {
   document.body.style.touchAction = "none";
 
   // Telegram
-  let tg = window.Telegram?.WebApp;
   if (tg) {
     tg.expand();
     if (tg.enableClosingConfirmation) tg.enableClosingConfirmation();
