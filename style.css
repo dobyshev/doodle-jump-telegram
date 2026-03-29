@@ -374,3 +374,19 @@ body {
   color: #e8f0e8;
   font-size: 14px;
 }
+
+/* Исправление для canvas */
+#gameCanvas {
+  display: block;
+  background: #2c5a4a;
+  border-radius: 24px;
+  width: 100%;
+  height: auto;
+  cursor: pointer;
+  min-height: 400px;
+}
+
+/* Убедись, что игра видна */
+.game-container {
+  min-height: 700px;
+}
