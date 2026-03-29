@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let tg = window.Telegram?.WebApp;
   if (tg) {
     tg.expand();
-    tg.enableClosingConfirmation();
+    if (tg.enableClosingConfirmation) tg.enableClosingConfirmation();
   }
 
   // DOM элементы
@@ -61,7 +61,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function updateBalance() {
-    balanceElement.textContent = playerBalance;
+    if (balanceElement) balanceElement.textContent = playerBalance;
     if (tg) tg.MainButton.setText(`💰 ${playerBalance}`);
   }
 
@@ -172,7 +172,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return true;
   }
 
-  function joinTournament(tId) {
+  window.joinTournament = function (tId) {
     const t = tournaments.find((t) => t.id === tId);
     if (!t || t.status !== "waiting") return alert("Турнир недоступен");
     if (t.players.length >= t.maxPlayers) return alert("Турнир заполнен");
@@ -188,7 +188,7 @@ document.addEventListener("DOMContentLoaded", () => {
     renderTournaments();
     alert(`✅ Вы вступили в турнир!`);
     return true;
-  }
+  };
 
   function finishGame(score) {
     if (gameMode === "tournament" && currentTournament) {
@@ -293,8 +293,6 @@ document.addEventListener("DOMContentLoaded", () => {
         )
         .join("") || '<div class="empty-message">История пуста</div>';
   }
-
-  window.joinTournament = joinTournament;
 
   // ==================== ИГРОВАЯ ЛОГИКА ====================
   let combo = 0,
@@ -513,7 +511,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     for (let i = 1; i < 12; i++)
       addRandomPlatform(canvas.height - 50 - i * platformGap);
-    restartButton.style.display = "none";
+    if (restartButton) restartButton.style.display = "none";
   }
 
   function addRandomPlatform(y) {
@@ -691,7 +689,7 @@ document.addEventListener("DOMContentLoaded", () => {
       powerupTimer--;
       if (powerupTimer <= 0) activePowerup = null;
     }
-    if (!gameRunning) restartButton.style.display = "block";
+    if (!gameRunning && restartButton) restartButton.style.display = "block";
   }
 
   function updatePowerups() {
@@ -1070,19 +1068,24 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function updateScore() {
-    scoreElement.textContent = Math.floor(score);
-    scoreElement.style.transform = "scale(1.1)";
-    setTimeout(() => (scoreElement.style.transform = "scale(1)"), 150);
+    if (scoreElement) scoreElement.textContent = Math.floor(score);
+    if (scoreElement) {
+      scoreElement.style.transform = "scale(1.1)";
+      setTimeout(() => (scoreElement.style.transform = "scale(1)"), 150);
+    }
   }
+
   function updateCombo() {
     if (multiplier > 1) {
-      comboBox.style.display = "flex";
-      comboValue.textContent = `x${multiplier}`;
-      comboBox.style.animation = "none";
-      comboBox.offsetHeight;
-      comboBox.style.animation = "comboPulse 0.3s ease";
+      if (comboBox) comboBox.style.display = "flex";
+      if (comboValue) comboValue.textContent = `x${multiplier}`;
+      if (comboBox) {
+        comboBox.style.animation = "none";
+        comboBox.offsetHeight;
+        comboBox.style.animation = "comboPulse 0.3s ease";
+      }
     } else {
-      comboBox.style.display = "none";
+      if (comboBox) comboBox.style.display = "none";
     }
   }
 
@@ -1093,35 +1096,46 @@ document.addEventListener("DOMContentLoaded", () => {
       if (btn.dataset.mode === mode) btn.classList.add("active");
       else btn.classList.remove("active");
     });
-    document
-      .getElementById("practicePanel")
-      .classList.toggle("active", mode === "practice");
-    document
-      .getElementById("tournamentPanel")
-      .classList.toggle("active", mode === "tournament");
+    const practice = document.getElementById("practicePanel");
+    const tournament = document.getElementById("tournamentPanel");
+    if (practice) practice.classList.toggle("active", mode === "practice");
+    if (tournament)
+      tournament.classList.toggle("active", mode === "tournament");
     if (mode === "practice") currentTournament = null;
     else renderTournaments();
   }
 
-  document.querySelectorAll(".mode-btn").forEach((btn) => {
+  // Инициализация кнопок с проверкой существования
+  const modeBtns = document.querySelectorAll(".mode-btn");
+  modeBtns.forEach((btn) => {
     btn.onclick = () => switchMode(btn.dataset.mode);
   });
 
-  document.getElementById("createTournamentBtn").onclick = () => {
-    const stake = parseInt(document.getElementById("betAmount").value);
-    const maxPlayers = parseInt(document.getElementById("groupSize").value);
-    if (stake < 10) {
-      alert("Минимальная ставка: 10");
-      return;
-    }
-    createTournament(stake, maxPlayers);
-  };
-  document.getElementById("refreshTournamentBtn").onclick = () =>
-    renderTournaments();
-  document.getElementById("depositBtn").onclick = deposit;
-  document.getElementById("withdrawBtn").onclick = withdraw;
+  const createBtn = document.getElementById("createTournamentBtn");
+  if (createBtn) {
+    createBtn.onclick = () => {
+      const stakeInput = document.getElementById("betAmount");
+      const groupSelect = document.getElementById("groupSize");
+      const stake = stakeInput ? parseInt(stakeInput.value) : 100;
+      const maxPlayers = groupSelect ? parseInt(groupSelect.value) : 2;
+      if (stake < 10) {
+        alert("Минимальная ставка: 10");
+        return;
+      }
+      createTournament(stake, maxPlayers);
+    };
+  }
 
-  if (infoBtn) {
+  const refreshBtn = document.getElementById("refreshTournamentBtn");
+  if (refreshBtn) refreshBtn.onclick = () => renderTournaments();
+
+  const depositBtn = document.getElementById("depositBtn");
+  if (depositBtn) depositBtn.onclick = deposit;
+
+  const withdrawBtn = document.getElementById("withdrawBtn");
+  if (withdrawBtn) withdrawBtn.onclick = withdraw;
+
+  if (infoBtn && modal && modalClose) {
     infoBtn.onclick = () => modal.classList.add("active");
     modalClose.onclick = () => modal.classList.remove("active");
     modal.onclick = (e) => {
@@ -1146,7 +1160,8 @@ document.addEventListener("DOMContentLoaded", () => {
     requestAnimationFrame(gameLoop);
   }
   gameLoop();
-  restartButton.onclick = () => init();
+
+  if (restartButton) restartButton.onclick = () => init();
 
   if (tg) {
     tg.MainButton.setText(`💰 ${playerBalance}`).show();
