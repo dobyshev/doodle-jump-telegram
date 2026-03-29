@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("=== DOODLE JUMP — TELEGRAM MINI APP ===");
+  console.log("=== DOODLE JUMP — PREMIUM VERSION ===");
 
   // ==================== TELEGRAM SETUP ====================
   let tg = null;
@@ -8,13 +8,14 @@ document.addEventListener("DOMContentLoaded", () => {
     if (tg) {
       tg.expand();
       tg.ready();
-      console.log("Telegram WebApp initialized");
     }
-  } catch (e) {
-    console.log("Telegram WebApp error:", e);
-  }
+  } catch (e) {}
 
   // ==================== DOM ELEMENTS ====================
+  const mainScreen = document.getElementById("mainScreen");
+  const profileScreen = document.getElementById("profileScreen");
+  const gamePanels = document.getElementById("gamePanels");
+  const bottomNav = document.getElementById("bottomNav");
   const canvas = document.getElementById("gameCanvas");
   const ctx = canvas.getContext("2d");
   const scoreElement = document.getElementById("scoreValue");
@@ -34,6 +35,9 @@ document.addEventListener("DOMContentLoaded", () => {
   let gameRunning = true;
   let score = 0;
   let bestScore = localStorage.getItem("bestScore") || 0;
+  let gamesPlayed = parseInt(localStorage.getItem("gamesPlayed")) || 0;
+  let tournamentsPlayed =
+    parseInt(localStorage.getItem("tournamentsPlayed")) || 0;
   let combo = 0;
   let multiplier = 1;
 
@@ -56,6 +60,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (savedHistory) gameHistory = JSON.parse(savedHistory);
 
     renderTournaments();
+    updateProfileStats();
   }
 
   function saveData() {
@@ -63,11 +68,20 @@ document.addEventListener("DOMContentLoaded", () => {
     localStorage.setItem("tournaments", JSON.stringify(tournaments));
     localStorage.setItem(`history_${playerId}`, JSON.stringify(gameHistory));
     updateBalance();
+    updateProfileStats();
   }
 
   function updateBalance() {
     if (balanceElement) balanceElement.textContent = playerBalance;
     if (tg && tg.MainButton) tg.MainButton.setText(`💰 ${playerBalance}`);
+  }
+
+  function updateProfileStats() {
+    document.getElementById("profileBalance").textContent = playerBalance;
+    document.getElementById("profileBestScore").textContent = bestScore;
+    document.getElementById("profileGamesPlayed").textContent = gamesPlayed;
+    document.getElementById("profileTournaments").textContent =
+      tournamentsPlayed;
   }
 
   function addHistory(type, amount, desc) {
@@ -84,39 +98,8 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function deposit() {
-    let amount = 100;
-    if (tg && tg.showPopup) {
-      tg.showPopup(
-        {
-          title: "💎 Пополнение",
-          message: "Выберите сумму",
-          buttons: [
-            { id: "100", text: "100" },
-            { id: "500", text: "500" },
-            { id: "1000", text: "1000" },
-            { id: "cancel", text: "Отмена", type: "cancel" },
-          ],
-        },
-        (id) => {
-          if (id !== "cancel") {
-            amount = parseInt(id);
-            playerBalance += amount;
-            saveData();
-            addHistory("deposit", amount, `Пополнение на ${amount}`);
-            if (tg && tg.showAlert)
-              tg.showAlert(`✅ Баланс пополнен на ${amount}`);
-          }
-        },
-      );
-    } else {
-      amount = parseInt(prompt("Сумма пополнения:", "100"));
-      if (amount > 0) {
-        playerBalance += amount;
-        saveData();
-        addHistory("deposit", amount, `Пополнение на ${amount}`);
-        alert(`✅ Баланс пополнен на ${amount}`);
-      }
-    }
+    // Функция пополнения (убрали кнопку, но оставили для совместимости)
+    console.log("Deposit function available");
   }
 
   function withdraw() {
@@ -203,6 +186,8 @@ document.addEventListener("DOMContentLoaded", () => {
         player.score = score;
         player.finished = true;
         saveData();
+        tournamentsPlayed++;
+        localStorage.setItem("tournamentsPlayed", tournamentsPlayed);
 
         if (currentTournament.players.every((p) => p.finished)) {
           const winner = currentTournament.players.reduce((max, p) =>
@@ -229,12 +214,15 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }
     } else {
+      gamesPlayed++;
+      localStorage.setItem("gamesPlayed", gamesPlayed);
       addHistory("practice", 0, `Тренировка: ${score} очков`);
       if (score > bestScore) {
         bestScore = score;
         localStorage.setItem("bestScore", bestScore);
       }
     }
+    updateProfileStats();
     renderTournaments();
   }
 
@@ -264,7 +252,7 @@ document.addEventListener("DOMContentLoaded", () => {
         `,
           )
           .join("")
-      : '<div class="empty-message">Нет активных турниров</div>';
+      : '<div class="empty-message">✨ No active tournaments</div>';
 
     const my = tournaments.filter(
       (t) =>
@@ -284,7 +272,7 @@ document.addEventListener("DOMContentLoaded", () => {
         `,
           )
           .join("")
-      : '<div class="empty-message">Вы не участвуете</div>';
+      : '<div class="empty-message">📭 You are not participating</div>';
 
     historyContainer.innerHTML =
       gameHistory
@@ -297,7 +285,7 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>
         `,
         )
-        .join("") || '<div class="empty-message">История пуста</div>';
+        .join("") || '<div class="empty-message">📭 No history yet</div>';
   }
 
   // ==================== GAME LOGIC ====================
@@ -416,7 +404,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // ==================== TOUCH CONTROLS (FIXED) ====================
+  // ==================== TOUCH CONTROLS ====================
   canvas.style.touchAction = "none";
   canvas.style.userSelect = "none";
 
@@ -433,6 +421,7 @@ document.addEventListener("DOMContentLoaded", () => {
   canvas.addEventListener("touchmove", (e) => {
     e.preventDefault();
     e.stopPropagation();
+    if (!gameRunning) return;
     const rect = canvas.getBoundingClientRect();
     const scaleX = canvas.width / rect.width;
     let currentX = (e.touches[0].clientX - rect.left) * scaleX;
@@ -447,7 +436,6 @@ document.addEventListener("DOMContentLoaded", () => {
     e.stopPropagation();
   });
 
-  // Mouse controls for PC
   let isDraggingMouse = false;
   canvas.addEventListener("mousedown", (e) => {
     isDraggingMouse = true;
@@ -461,7 +449,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   canvas.addEventListener("mousemove", (e) => {
-    if (!isDraggingMouse) return;
+    if (!isDraggingMouse || !gameRunning) return;
     const rect = canvas.getBoundingClientRect();
     const scaleX = canvas.width / rect.width;
     let mouseX = (e.clientX - rect.left) * scaleX;
@@ -1089,22 +1077,70 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  // ==================== NAVIGATION ====================
+  function showMainScreen() {
+    mainScreen.style.display = "flex";
+    profileScreen.classList.remove("active");
+    gamePanels.classList.remove("active");
+    bottomNav.style.display = "none";
+  }
+
+  function showProfileScreen() {
+    mainScreen.style.display = "none";
+    profileScreen.classList.add("active");
+    gamePanels.classList.remove("active");
+    bottomNav.style.display = "none";
+    updateProfileStats();
+  }
+
+  function showGameScreen() {
+    mainScreen.style.display = "none";
+    profileScreen.classList.remove("active");
+    gamePanels.classList.add("active");
+    bottomNav.style.display = "flex";
+    init();
+    renderTournaments();
+  }
+
+  function switchGameTab(tab) {
+    const modeSwitch = document.querySelector(".mode-switch");
+    const tournamentPanel = document.getElementById("tournamentPanel");
+
+    if (tab === "game") {
+      modeSwitch.style.display = "flex";
+      tournamentPanel.classList.remove("active");
+      gameMode = "practice";
+      document.querySelector('.mode-btn[data-mode="practice"]').click();
+    } else if (tab === "tournament") {
+      modeSwitch.style.display = "flex";
+      tournamentPanel.classList.add("active");
+      gameMode = "tournament";
+      document.querySelector('.mode-btn[data-mode="tournament"]').click();
+    } else if (tab === "profile") {
+      showProfileScreen();
+    }
+  }
+
+  // ==================== BUTTONS INIT ====================
+  document.getElementById("playGameBtn").onclick = () => showGameScreen();
+  document.getElementById("profileMainBtn").onclick = () => showProfileScreen();
+  document.getElementById("backFromProfileBtn").onclick = () =>
+    showMainScreen();
+
+  document.querySelectorAll(".nav-btn").forEach((btn) => {
+    btn.onclick = () => switchGameTab(btn.dataset.nav);
+  });
+
   function switchMode(mode) {
     gameMode = mode;
     document.querySelectorAll(".mode-btn").forEach((btn) => {
       if (btn.dataset.mode === mode) btn.classList.add("active");
       else btn.classList.remove("active");
     });
-    const practice = document.getElementById("practicePanel");
-    const tournament = document.getElementById("tournamentPanel");
-    if (practice) practice.classList.toggle("active", mode === "practice");
-    if (tournament)
-      tournament.classList.toggle("active", mode === "tournament");
     if (mode === "practice") currentTournament = null;
     else renderTournaments();
   }
 
-  // ==================== BUTTONS INIT ====================
   document.querySelectorAll(".mode-btn").forEach((btn) => {
     btn.onclick = () => switchMode(btn.dataset.mode);
   });
@@ -1124,15 +1160,6 @@ document.addEventListener("DOMContentLoaded", () => {
     };
   }
 
-  const refreshBtn = document.getElementById("refreshTournamentBtn");
-  if (refreshBtn) refreshBtn.onclick = () => renderTournaments();
-
-  const depositBtn = document.getElementById("depositBtn");
-  if (depositBtn) depositBtn.onclick = deposit;
-
-  const withdrawBtn = document.getElementById("withdrawBtn");
-  if (withdrawBtn) withdrawBtn.onclick = withdraw;
-
   if (infoBtn && modal && modalClose) {
     infoBtn.onclick = () => modal.classList.add("active");
     modalClose.onclick = () => modal.classList.remove("active");
@@ -1143,7 +1170,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (restartButton) restartButton.onclick = () => init();
 
-  // ==================== START GAME ====================
+  // ==================== START ====================
   generateBackground();
   loadData();
   init();
@@ -1151,7 +1178,7 @@ document.addEventListener("DOMContentLoaded", () => {
   switchMode("practice");
 
   function gameLoop() {
-    if (gameRunning) {
+    if (gameRunning && gamePanels.classList.contains("active")) {
       updatePlayer();
       updateCoins();
       updatePowerups();
@@ -1170,5 +1197,5 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  console.log("Игра запущена! Свайпы работают!");
+  console.log("Игра запущена! Премиум версия с профилем");
 });
