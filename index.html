@@ -4,134 +4,218 @@
     <meta charset="UTF-8" />
     <meta
       name="viewport"
-      content="width=device-width, initial-scale=1.0, user-scalable=no"
-    />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,600;14..32,800&display=swap"
-      rel="stylesheet"
+      content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover"
     />
     <title>Doodle Jump | Telegram Mini App</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="style.css" />
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+      /* Дополнительные стили для плавности */
+      body {
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .game-container {
+        margin: 16px auto;
+      }
+
+      /* Улучшенный скролл для панелей */
+      .game-panel::-webkit-scrollbar,
+      .tournaments-container::-webkit-scrollbar,
+      .history-container::-webkit-scrollbar {
+        width: 4px;
+      }
+
+      .game-panel::-webkit-scrollbar-track,
+      .tournaments-container::-webkit-scrollbar-track,
+      .history-container::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 10px;
+      }
+
+      .game-panel::-webkit-scrollbar-thumb,
+      .tournaments-container::-webkit-scrollbar-thumb,
+      .history-container::-webkit-scrollbar-thumb {
+        background: linear-gradient(135deg, #ffd966, #ffaa33);
+        border-radius: 10px;
+      }
+
+      /* Убираем стандартные стили кнопок на iOS */
+      button {
+        -webkit-appearance: none;
+        appearance: none;
+      }
+    </style>
   </head>
   <body>
     <div class="game-container">
+      <!-- Верхняя панель с очками и балансом -->
       <div class="score-panel">
         <div class="score-box">
-          <span class="score-label">SCORE</span>
+          <span class="score-label">🏆 SCORE</span>
           <span id="scoreValue">0</span>
         </div>
         <div class="combo-box" id="comboBox" style="display: none">
-          <span class="combo-label">COMBO</span>
+          <span class="combo-label">⚡ COMBO</span>
           <span id="comboValue">x1</span>
         </div>
         <div class="balance-box">
-          <span class="balance-label">💰 БАЛАНС</span>
+          <span class="balance-label">💰 BALANCE</span>
           <span id="balanceValue">0</span>
         </div>
-        <button class="info-btn" id="infoBtn">ⓘ</button>
+        <button class="info-btn" id="infoBtn" aria-label="Информация">ⓘ</button>
       </div>
 
+      <!-- Игровое поле -->
       <canvas id="gameCanvas"></canvas>
 
+      <!-- Переключатель режимов -->
       <div class="mode-switch">
         <button class="mode-btn active" data-mode="practice">
-          🎮 ТРЕНИРОВКА
+          🎮 TRAINING
         </button>
-        <button class="mode-btn" data-mode="tournament">🏆 ТУРНИР</button>
+        <button class="mode-btn" data-mode="tournament">🏆 TOURNAMENT</button>
       </div>
 
+      <!-- Панель тренировки -->
       <div id="practicePanel" class="game-panel active">
         <div class="panel-message">
-          <span>🏋️ Тренировочный режим</span>
+          <span>🏋️ TRAINING MODE</span>
           <span class="small-text"
-            >Без ставок, просто играй и улучшай навыки</span
+            >Free play • Improve your skills • No bets</span
           >
         </div>
       </div>
 
+      <!-- Панель турнира -->
       <div id="tournamentPanel" class="game-panel">
         <div class="tournament-header">
-          <span>🏆 ТУРНИР НА РЕАЛЬНЫЕ СТАВКИ</span>
-          <span class="commission-badge">Комиссия 10%</span>
+          <span>🏆 REAL MONEY TOURNAMENT</span>
+          <span class="commission-badge">⚡ 10% FEE</span>
         </div>
 
+        <!-- Создание турнира -->
         <div class="tournament-create">
           <input
             type="number"
             id="betAmount"
-            placeholder="Ставка"
+            placeholder="Amount"
             value="100"
             min="10"
             step="10"
           />
           <select id="groupSize">
-            <option value="2">2 игрока</option>
-            <option value="3">3 игрока</option>
-            <option value="4">4 игрока</option>
-            <option value="5">5 игроков</option>
-            <option value="6">6 игроков</option>
-            <option value="8">8 игроков</option>
-            <option value="10">10 игроков</option>
+            <option value="2">👥 2 players</option>
+            <option value="3">👥 3 players</option>
+            <option value="4">👥 4 players</option>
+            <option value="5">👥 5 players</option>
+            <option value="6">👥 6 players</option>
+            <option value="8">👥 8 players</option>
+            <option value="10">👥 10 players</option>
           </select>
           <button id="createTournamentBtn" class="tournament-btn create">
-            ➕ СОЗДАТЬ
+            ➕ CREATE
           </button>
         </div>
 
+        <!-- Активные турниры -->
         <div class="tournaments-list">
-          <div class="section-title">🔥 АКТИВНЫЕ ТУРНИРЫ</div>
+          <div class="section-title">🔥 ACTIVE TOURNAMENTS</div>
           <div id="tournamentsContainer" class="tournaments-container">
-            <div class="empty-message">Нет активных турниров</div>
+            <div class="empty-message">✨ No active tournaments</div>
           </div>
         </div>
 
+        <!-- Мои турниры -->
         <div class="my-tournaments">
-          <div class="section-title">👥 МОИ ТУРНИРЫ</div>
+          <div class="section-title">👥 MY TOURNAMENTS</div>
           <div id="myTournamentsContainer" class="tournaments-container">
-            <div class="empty-message">Вы не участвуете в турнирах</div>
+            <div class="empty-message">📭 You are not participating</div>
           </div>
         </div>
 
+        <!-- История -->
         <div class="history">
-          <div class="section-title">📜 ИСТОРИЯ</div>
+          <div class="section-title">📜 HISTORY</div>
           <div id="historyContainer" class="history-container">
-            <div class="empty-message">История пуста</div>
+            <div class="empty-message">📭 No history yet</div>
           </div>
         </div>
 
+        <!-- Кошелек -->
         <div class="wallet-actions">
-          <button id="depositBtn" class="wallet-btn deposit">
-            💎 ПОПОЛНИТЬ
-          </button>
+          <button id="depositBtn" class="wallet-btn deposit">💎 DEPOSIT</button>
           <button id="withdrawBtn" class="wallet-btn withdraw">
-            💸 ВЫВЕСТИ
+            💸 WITHDRAW
           </button>
         </div>
       </div>
 
-      <button id="restartButton" class="restart-btn">⟳ НОВАЯ ИГРА</button>
+      <!-- Кнопка рестарта -->
+      <button id="restartButton" class="restart-btn">⟳ NEW GAME</button>
     </div>
 
+    <!-- Модальное окно с информацией -->
     <div id="infoModal" class="modal">
       <div class="modal-content">
         <div class="modal-header">
-          <h2>🎮 Как играть</h2>
-          <button class="modal-close">&times;</button>
+          <h2>🎮 HOW TO PLAY</h2>
+          <button class="modal-close" aria-label="Закрыть">&times;</button>
         </div>
         <div class="modal-body">
           <div class="info-section">
-            <h3>🎯 Управление</h3>
-            <p>👆 Веди пальцем/мышкой по экрану — персонаж следует за тобой</p>
-          </div>
-          <div class="info-section">
-            <h3>🏆 ДВА РЕЖИМА</h3>
-            <p><strong>🎮 Тренировка</strong> — бесплатная игра</p>
+            <h3>🎯 CONTROLS</h3>
             <p>
-              <strong>🏆 Турнир</strong> — игра на ставки, победитель забирает
-              приз
+              👆 Slide your finger/mouse across the screen — the character
+              follows you
             </p>
-            <p>⚡ Комиссия платформы: <strong>10%</strong></p>
+            <p>📱 On phone: just drag anywhere on the screen</p>
+            <p>💻 On PC: drag with mouse</p>
+          </div>
+
+          <div class="info-section">
+            <h3>🏆 TWO MODES</h3>
+            <p>
+              <strong>🎮 TRAINING</strong> — Free play, practice your skills
+            </p>
+            <p>
+              <strong>🏆 TOURNAMENT</strong> — Real money bets, winner takes the
+              prize pool
+            </p>
+            <p>⚡ Platform fee: <strong style="color: #ffd966">10%</strong></p>
+          </div>
+
+          <div class="info-section">
+            <h3>⭐ PLATFORMS</h3>
+            <p>🟫 Normal — standard jump</p>
+            <p>🟡 Gold — +50 points</p>
+            <p>🟠 Bounce — super high jump</p>
+            <p>🔵 Ice — slippery, extra slide</p>
+            <p>☁️ Cloud — soft jump</p>
+            <p>🍄 Mushroom — +20 points</p>
+          </div>
+
+          <div class="info-section">
+            <h3>✨ POWER-UPS</h3>
+            <p>🧲 Magnet — attracts coins for 5 seconds</p>
+            <p>🐢 Slow Motion — slows falling for 5 seconds</p>
+            <p>🛡️ Shield — protects from spikes for 5 seconds</p>
+          </div>
+
+          <div class="info-section">
+            <h3>💰 COINS & COMBO</h3>
+            <p>🪙 Each coin gives +10 points</p>
+            <p>🔥 Consecutive jumps increase multiplier (up to x5)</p>
+          </div>
+
+          <div class="info-section">
+            <h3>⚠️ DANGERS</h3>
+            <p>🔴 Red spikes — instant death (except with Shield)</p>
           </div>
         </div>
       </div>
