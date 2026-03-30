@@ -16,7 +16,6 @@ body {
   padding: 12px;
 }
 
-/* Главный контейнер — жидкое стекло */
 .game-container {
   width: 100%;
   max-width: 500px;
@@ -28,10 +27,8 @@ body {
     0 25px 45px rgba(0, 0, 0, 0.3),
     inset 0 1px 1px rgba(255, 255, 255, 0.08);
   padding: 16px;
-  transition: all 0.3s ease;
 }
 
-/* Верхняя панель */
 .glass-panel {
   background: rgba(8, 20, 12, 0.5);
   backdrop-filter: blur(16px);
@@ -67,7 +64,6 @@ body {
   font-size: 11px;
   font-weight: 600;
   color: #b8e4b8;
-  letter-spacing: 0.5px;
 }
 
 .score-value {
@@ -93,11 +89,6 @@ body {
   justify-content: center;
 }
 
-.info-btn:active {
-  background: rgba(255, 217, 102, 0.2);
-}
-
-/* Игровая область */
 .game-area {
   position: relative;
   display: flex;
@@ -114,10 +105,7 @@ body {
   height: auto;
   cursor: pointer;
   touch-action: none;
-  box-shadow:
-    0 12px 28px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
-  transition: all 0.2s ease;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4);
 }
 
 .fullscreen-btn {
@@ -136,16 +124,8 @@ body {
   cursor: pointer;
   font-size: 18px;
   color: #ffecb3;
-  transition: all 0.2s ease;
 }
 
-.fullscreen-btn:active {
-  transform: scale(0.92);
-  background: #ffd966;
-  color: #0a1f0a;
-}
-
-/* Переключатель режимов */
 .mode-switch {
   display: flex;
   gap: 10px;
@@ -165,7 +145,6 @@ body {
   font-weight: 600;
   font-size: 13px;
   cursor: pointer;
-  transition: all 0.2s;
 }
 
 .mode-btn.active {
@@ -174,14 +153,12 @@ body {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
-/* Турнирная панель */
 .tournament-panel {
   display: none;
   background: rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(12px);
   border-radius: 28px;
   padding: 14px;
-  margin-top: 8px;
   max-height: 300px;
   overflow-y: auto;
 }
@@ -242,11 +219,6 @@ body {
   font-weight: 700;
   font-size: 12px;
   cursor: pointer;
-  transition: all 0.2s;
-}
-
-.tournament-btn:active {
-  transform: scale(0.96);
 }
 
 .tournament-btn.create {
@@ -301,11 +273,6 @@ body {
   color: #ffd966;
 }
 
-.tournament-players {
-  font-size: 10px;
-  color: #b8d4b8;
-}
-
 .history-item {
   background: rgba(0, 0, 0, 0.35);
   border-radius: 14px;
@@ -327,7 +294,6 @@ body {
   font-weight: 700;
 }
 
-/* Кнопка рестарта */
 .restart-btn {
   background: linear-gradient(135deg, #ffd966, #ffaa33);
   border: none;
@@ -340,14 +306,8 @@ body {
   display: none;
   margin-top: 12px;
   width: 100%;
-  transition: all 0.2s;
 }
 
-.restart-btn:active {
-  transform: scale(0.97);
-}
-
-/* Нижняя навигация */
 .bottom-nav {
   display: flex;
   gap: 8px;
@@ -368,7 +328,6 @@ body {
   font-size: 12px;
   cursor: pointer;
   text-align: center;
-  transition: all 0.2s;
 }
 
 .nav-btn.active {
@@ -377,11 +336,6 @@ body {
   border-color: transparent;
 }
 
-.nav-btn:active {
-  transform: scale(0.96);
-}
-
-/* Модальное окно */
 .modal {
   display: none;
   position: fixed;
@@ -407,18 +361,6 @@ body {
   max-width: 400px;
   width: 85%;
   border: 1px solid rgba(255, 217, 102, 0.3);
-  animation: fadeInScale 0.25s ease;
-}
-
-@keyframes fadeInScale {
-  from {
-    opacity: 0;
-    transform: scale(0.96);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
 }
 
 .modal-header {
@@ -460,45 +402,4 @@ body {
   color: #d4e8d4;
   font-size: 13px;
   line-height: 1.5;
-}
-
-/* Профиль и сезон в модалках */
-.profile-stats,
-.season-stats {
-  text-align: center;
-}
-
-.stat-row {
-  display: flex;
-  justify-content: space-between;
-  padding: 12px 0;
-  border-bottom: 1px solid rgba(255, 217, 102, 0.15);
-  color: #d4e8d4;
-}
-
-.rank-badge {
-  background: linear-gradient(135deg, #ffd966, #ffaa33);
-  border-radius: 40px;
-  padding: 12px;
-  margin-bottom: 16px;
-}
-
-.leaderboard-item {
-  display: flex;
-  justify-content: space-between;
-  padding: 10px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-/* Кастомный скролл */
-::-webkit-scrollbar {
-  width: 3px;
-}
-::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 10px;
-}
-::-webkit-scrollbar-thumb {
-  background: #ffd966;
-  border-radius: 10px;
 }
